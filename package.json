@@ -1,0 +1,36 @@
+{
+  "name": "bim-engine-sdk",
+  "version": "1.0.0",
+  "description": "BIM Engine SDK for Vue2, Vue3, React and HTML",
+  "main": "./dist/bim-engine-sdk.umd.js",
+  "module": "./dist/bim-engine-sdk.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/bim-engine-sdk.es.js",
+      "require": "./dist/bim-engine-sdk.umd.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "keywords": [
+    "bim",
+    "sdk",
+    "vue",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
+    "vite-plugin-dts": "^4.5.4"
+  }
+}
