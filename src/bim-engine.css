@@ -1,0 +1,26 @@
+.bim-engine-wrapper {
+    position: relative;
+    /* 添加相对定位作为参照物 */
+    width: 100%;
+    height: 100%;
+    font-family: sans-serif;
+    color: #333;
+    padding: 20px;
+    background-color: #e16969;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box;
+    /* 确保 padding 不会撑大容器 */
+}
+
+/* ... (中间代码不变) ... */
+
+/* 操作按钮组容器 */
+.bim-engine-opt-btn-container {
+    position: absolute;
+    /* 改为绝对定位 */
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}

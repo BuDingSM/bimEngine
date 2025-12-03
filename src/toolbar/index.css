@@ -1,0 +1,181 @@
+/* 容器样式 */
+.toolbar-container {
+    display: flex;
+    align-items: center;
+    /* 容器本身不需要背景 */
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Firefox 隐藏滚动条 */
+    -ms-overflow-style: none;
+    /* IE 10+ 隐藏滚动条 */
+}
+
+.toolbar-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari 隐藏滚动条 */
+}
+
+/* 按钮组样式 */
+.opt-btn-group {
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    background-color: rgba(17, 17, 17, 0.88);
+    /* 每个组独立的背景 */
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.has-divider {
+    margin-right: 16px;
+    /* 增加右边距来分隔组 */
+}
+
+/* 按钮包装器 */
+.opt-btn-wrapper {
+    position: relative;
+}
+
+/* 按钮样式 */
+.opt-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    min-height: 50px;
+    padding: 4px;
+    cursor: pointer;
+    color: #ccc;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    /* 默认透明底边 */
+}
+
+.opt-btn:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+.opt-btn.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    /* 白色半透明背景 */
+    color: #fff;
+    border-bottom: 2px solid #fff;
+    /* 纯白色底部横条 */
+}
+
+.opt-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 图标样式 */
+.opt-btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    /* 防止图标被压缩 */
+}
+
+.opt-btn-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 文字标签样式 */
+.opt-btn-label {
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+/* 下拉箭头样式 */
+.opt-btn-arrow {
+    font-size: 8px;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+}
+
+/* 箭头旋转 (菜单展开时) */
+.opt-btn-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+/* 无标签模式调整 */
+.opt-btn.no-label .opt-btn-arrow {
+    top: 2px;
+    right: 2px;
+}
+
+/* 下拉菜单样式 */
+.opt-btn-dropdown {
+    position: fixed;
+    /* 固定定位 */
+    transform: translate(-50%, -100%);
+    /* 水平居中并向上移动 */
+    background-color: rgba(17, 17, 17, 0.88);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 50px;
+    z-index: 9999;
+    /* 高层级 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 下拉菜单项样式 */
+.opt-btn-dropdown-item {
+    display: flex;
+    flex-direction: column;
+    /* 垂直布局 */
+    align-items: center;
+    justify-content: center;
+    color: #b3b4b4;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+    min-width: 50px;
+    min-height: 50px;
+    padding: 4px;
+}
+
+.opt-btn-dropdown-item:last-child {
+    border-bottom: none;
+    /* 移除最后一项的分隔线 */
+}
+
+.opt-btn-dropdown-item:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+.opt-btn-dropdown-item .opt-btn-icon.small {
+    width: 30px;
+    /* 与主按钮图标大小一致 */
+    height: 30px;
+    margin-right: 0;
+    /* 移除右边距 */
+    margin-bottom: 4px;
+    /* 添加下边距 */
+}
+
+.opt-btn-dropdown-item span {
+    font-size: 10px;
+    /* 较小的文字 */
+}
+
+/* 无标签模式调整 */
+.opt-btn.no-label .opt-btn-icon {
+    width: 32px;
+    height: 32px;
+}

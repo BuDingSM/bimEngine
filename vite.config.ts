@@ -16,7 +16,7 @@ export default defineConfig(({ command }) => {
     build: {
       lib: {
         entry: resolve(__dirname, 'src/index.ts'),
-        name: 'BimEngineSDK',
+        name: 'LyzBimEngineSDK',
         fileName: (format) => `bim-engine-sdk.${format}.js`,
       },
       rollupOptions: {

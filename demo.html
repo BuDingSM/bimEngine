@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIM Engine SDK Demo</title>
     <script src="./dist/bim-engine-sdk.umd.js"></script>
 </head>
-<body>
-    <div id="app" style="width: 100%; height: 300px; border: 1px dashed #ccc;"></div>
 
+<body>
+    <div id="app" style="width: 1000px; height: 500px; border: 1px dashed #ccc;"></div>
     <script>
         // 等待 SDK 加载
         window.onload = () => {
-            if (window.BimEngineSDK) {
-                // 这里的 BimEngineSDK 是 UMD 的全局变量名（由 vite.config.ts 中的 build.lib.name 定义）
-                // 如果是 export default，可能直接挂载在 window.BimEngineSDK，或者需要 .default，取决于打包格式。
-                // 但我们在 index.ts 中使用了具名导出 export { BimEngine }，所以应该是 window.BimEngineSDK.BimEngine
-                
-                const Engine = window.BimEngineSDK.BimEngine;
-                
+            if (window.LyzBimEngineSDK) {
+                const Engine = window.LyzBimEngineSDK.BimEngine;
                 try {
                     const instance = new Engine(document.getElementById('app'));
                     console.log('Engine initialized:', instance);
@@ -31,4 +27,5 @@
         };
     </script>
 </body>
+
 </html>
