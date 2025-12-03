@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIM Engine SDK Demo</title>
+    <script src="../dist/bim-engine-sdk.umd.js"></script>
+</head>
+
+<body>
+    <div id="app" style="width: 100%; height: 500px; border: 1px dashed #ccc;"></div>
+
+    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button onclick="toggleToolbar()">切换工具栏显隐</button>
+        <button onclick="toggleLabel()">切换文字标签</button>
+        <button onclick="addCustomGroup()">添加自定义组(最前)</button>
+        <button onclick="addCustomButton()">添加按钮到自定义组</button>
+        <button onclick="toggleLocationBtn()">切换"定位"按钮显隐</button>
+        <button onclick="changeToolbarColor()">修改工具栏颜色 (蓝色)</button>
+        <button onclick="changeToolbarStyleFull()">修改工具栏样式 (浅色主题)</button>
+        <button onclick="resetToolbarStyle()">重置工具栏样式</button>
+        <button onclick="openRedDialog()">打开红色弹窗 (样式定制)</button>
+        <button onclick="openCustomHeaderDialog()">打开自定义标题弹窗</button>
+    </div>
+
+    <script>
+        let engine = null;
+        let isToolbarVisible = true;
+        let isLabelVisible = true;
+        let isLocationVisible = true;
+        let customGroupAdded = false;
+
+        // 等 SDK ��载
+        window.onload = () => {
+            if (window.LyzBimEngineSDK) {
+                const Engine = window.LyzBimEngineSDK.BimEngine;
+
+                try {
+                    engine = new Engine(document.getElementById('app'));
+                    console.log('Engine initialized:', engine);
+                } catch (err) {
+                    console.error('Init failed:', err);
+                }
+            } else {
+                console.error('SDK not found');
+            }
+        };
+
+        function toggleToolbar() {
+            if (!engine || !engine.toolbar) return;
+            isToolbarVisible = !isToolbarVisible;
+            engine.toolbar.setVisible(isToolbarVisible);
+        }
+
+        function toggleLabel() {
+            if (!engine || !engine.toolbar) return;
+            isLabelVisible = !isLabelVisible;
+            engine.toolbar.setShowLabel(isLabelVisible);
+        }
+
+        function addCustomGroup() {
+            if (!engine || !engine.toolbar) return;
+            if (customGroupAdded) {
+                alert('已添加过');
+                return;
+            }
+            // 添加到 group-1 之前
+            engine.toolbar.addGroup('custom-group', 'group-1');
+            customGroupAdded = true;
+            console.log('Added custom group');
+        }
+
+        function addCustomButton() {
+            if (!engine || !engine.toolbar) return;
+            if (!customGroupAdded) {
+                alert('请先添加自定义组');
+                return;
+            }
+
+            const btnId = 'custom-btn-' + Date.now();
+
+            engine.toolbar.addButton({
+                id: btnId,
+                groupId: 'custom-group',
+                type: 'button',
+                label: '新按钮',
+                // 一个简单的笑脸 SVG
+                icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>',
+                onClick: (btn) => {
+                    alert('你点击了动态添加的按钮: ' + btn.label);
+                }
+            });
+        }
+
+        function toggleLocationBtn() {
+            if (!engine || !engine.toolbar) return;
+            isLocationVisible = !isLocationVisible;
+            // location 按钮的 ID 是 'location'
+            engine.toolbar.setButtonVisibility('location', isLocationVisible);
+        }
+
+        function changeToolbarColor() {
+            if (!engine || !engine.toolbar) return;
+            // 仅修改背景色
+            engine.toolbar.setBackgroundColor('rgba(0, 100, 200, 0.9)');
+        }
+
+        function changeToolbarStyleFull() {
+            if (!engine || !engine.toolbar) return;
+            // 完整的浅色主题配置
+            engine.toolbar.setColors({
+                backgroundColor: '#f0f0f0',
+                btnBackgroundColor: '#ffffff',
+                btnHoverColor: '#e0e0e0',
+                btnActiveColor: '#d0d0d0',
+                iconColor: '#333333',
+                iconActiveColor: '#0078d4',
+                textColor: '#666666',
+                textActiveColor: '#000000'
+            });
+        }
+
+        function resetToolbarStyle() {
+            if (!engine || !engine.toolbar) return;
+            // 重置为默认深色主题
+            engine.toolbar.setColors({
+                backgroundColor: 'rgba(17, 17, 17, 0.88)',
+                btnBackgroundColor: 'transparent',
+                btnHoverColor: '#444',
+                btnActiveColor: 'rgba(255, 255, 255, 0.15)',
+                iconColor: '#ccc',
+                iconActiveColor: '#fff',
+                textColor: '#ccc',
+                textActiveColor: '#fff'
+            });
+        }
+
+        function openRedDialog() {
+            if (!engine || !engine.dialog) return;
+            engine.dialog.create({
+                title: '警报',
+                content: '<div style="color: #ffcccc;">这是一个高度定制的警告弹窗。<br>注意查看标题栏和边框颜色。</div>',
+                width: 300,
+                height: 150,
+                backgroundColor: 'rgba(100, 0, 0, 0.95)',
+                headerBackgroundColor: '#cc0000',
+                titleColor: '#ffffff',
+                borderColor: '#ff6666',
+                position: { x: 50, y: 50 } // 自定义坐标
+            });
+        }
+
+        function openCustomHeaderDialog() {
+            if (!engine || !engine.dialog) return;
+            engine.dialog.create({
+                title: '自定义样式弹窗',
+                content: '观察标题栏背景和文字颜色。',
+                width: 300,
+                headerBackgroundColor: '#0078d4', // 蓝色标题栏
+                titleColor: '#ffffff',
+                backgroundColor: '#ffffff', // 白色内容背景
+                textColor: '#333333',       // 深色文字
+                borderColor: '#0078d4',     // 蓝色边框
+                position: 'center'
+            });
+        }
+    </script>
+</body>
+
+</html>

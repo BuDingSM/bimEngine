@@ -1,0 +1,95 @@
+:root {
+    --bim-dialog-bg: rgba(17, 17, 17, 0.95);
+    --bim-dialog-header-bg: #2a2a2a;
+    --bim-dialog-title-color: #fff;
+    --bim-dialog-text-color: #ccc;
+    --bim-dialog-border-color: #444;
+}
+
+.bim-dialog {
+    position: absolute;
+    background-color: var(--bim-dialog-bg);
+    border: 1px solid var(--bim-dialog-border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    color: var(--bim-dialog-title-color);
+    overflow: hidden;
+    min-width: 200px;
+    min-height: 100px;
+}
+
+.bim-dialog-header {
+    height: 32px;
+    background-color: var(--bim-dialog-header-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    cursor: default;
+    user-select: none;
+    border-bottom: 1px solid var(--bim-dialog-border-color);
+    flex-shrink: 0;
+}
+
+.bim-dialog-header.draggable {
+    cursor: move;
+}
+
+.bim-dialog-title {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--bim-dialog-title-color);
+}
+
+.bim-dialog-close {
+    cursor: pointer;
+    font-size: 18px;
+    color: #999;
+    line-height: 1;
+    margin-left: 8px;
+}
+
+.bim-dialog-close:hover {
+    color: #fff;
+}
+
+.bim-dialog-content {
+    flex: 1;
+    padding: 10px;
+    overflow: auto;
+    font-size: 14px;
+    color: var(--bim-dialog-text-color);
+}
+
+/* 缩放句柄 */
+.bim-dialog-resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+    z-index: 10;
+}
+
+/* 右下角装饰，类似斜线 */
+.bim-dialog-resize-handle::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #666;
+    border-bottom: 2px solid #666;
+}
+
+.bim-dialog-resize-handle:hover::after {
+    border-color: #fff;
+}

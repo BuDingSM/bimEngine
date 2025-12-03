@@ -1,0 +1,30 @@
+.bim-info-dialog-content {
+    padding: 16px;
+    font-family: sans-serif;
+    color: #333;
+}
+
+.bim-info-dialog-content h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    color: #0078d4;
+}
+
+.bim-info-dialog-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bim-info-dialog-content li {
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+}
+
+.bim-info-dialog-content li strong {
+    width: 80px;
+    color: #555;
+}
