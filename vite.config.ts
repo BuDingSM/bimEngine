@@ -9,10 +9,21 @@ export default defineConfig(({ command }) => {
       // 移除 Vue 插件
       dts({
         include: ['src'],
-        rollupTypes: true
+        exclude: [
+          'src/**/*.es.js', 
+          'src/bim-engine-sdk.es.js',
+          '**/*.es.js'
+        ], // 排除第三方 SDK 文件，避免类型分析错误
+        rollupTypes: true,
+        logLevel: 'warn', // 只显示警告和错误
       }),
       cssInjectedByJs()
     ],
+    // 开发服务器配置
+    server: {
+      port: 3000,
+      open: '/demo/index.html', // 自动打开 demo 页面
+    },
     build: {
       lib: {
         entry: resolve(__dirname, 'src/index.ts'),

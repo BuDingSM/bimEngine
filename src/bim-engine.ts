@@ -2,10 +2,16 @@ import './bim-engine.css';
 import { ToolbarManager } from './managers/toolbar-manager';
 import { ButtonGroupManager } from './managers/button-group-manager';
 import { DialogManager } from './managers/dialog-manager';
+import { EngineManager } from './managers/engine-manager';
+import type { EngineOptions, ModelLoadOptions } from './components/engine';
 import { localeManager } from './services/locale';
 import { themeManager } from './services/theme';
 import type { LocaleType } from './locales/types';
 import type { ThemeType, ThemeConfig } from './themes/types';
+
+export type { EngineOptions, ModelLoadOptions };
+
+
 
 export class BimEngine {
     private container: HTMLElement;
@@ -15,11 +21,18 @@ export class BimEngine {
     public toolbar: ToolbarManager | null = null;      // 底部专用
     public buttonGroup: ButtonGroupManager | null = null; // 通用
     public dialog: DialogManager | null = null;
+    public engine: EngineManager | null = null;    // 3D 引擎管理器
 
     public get localeManager() { return localeManager; }
     public get themeManager() { return themeManager; }
 
-    constructor(container: HTMLElement | string, options?: { locale?: LocaleType; theme?: ThemeType }) {
+    constructor(
+        container: HTMLElement | string,
+        options?: {
+            locale?: LocaleType;
+            theme?: ThemeType;
+        }
+    ) {
         const el = typeof container === 'string' ? document.getElementById(container) : container;
         if (!el) throw new Error('Container not found');
         this.container = el;
@@ -47,13 +60,14 @@ export class BimEngine {
         this.wrapper.className = 'bim-engine-wrapper';
         this.container.appendChild(this.wrapper);
 
-        // 初始化管理器
+        // 创建 3D 引擎管理器
+        this.engine = new EngineManager(this.wrapper);
+
+        // 初始化其他管理器
         this.dialog = new DialogManager(this.wrapper);
         this.toolbar = new ToolbarManager(this.wrapper);
         this.buttonGroup = new ButtonGroupManager(this.wrapper);
 
-        // --- 创建左上角按钮组 (需求 1 & 2) ---
-        this.createTopLeftGroup();
 
         // 初始主题
         this.updateTheme(themeManager.getTheme());
@@ -69,34 +83,23 @@ export class BimEngine {
         });
     }
 
-    private createTopLeftGroup() {
-        if (!this.buttonGroup) return;
+    /**
+     * 初始化 3D 引擎组件
+     * 注意：只初始化引擎，不加载模型。模型加载在使用层（如 demo.html）进行
+     * @param options 引擎配置选项（可选）
+     */
+    public initEngine(options?: Omit<EngineOptions, 'container'>): boolean {
+        if (!this.engine) {
+            console.error('[BimEngine] Engine manager not available.');
+            return false;
+        }
 
-        this.topLeftGroup = this.buttonGroup.create({
-            position: 'top-left',
-            direction: 'column',
-            align: 'vertical',
-            backgroundColor: '#ff00ff', // 自定义背景色，不会被主题覆盖
-            showLabel: false
-        });
-
-        this.topLeftGroup.addGroup('main');
-        this.topLeftGroup.addButton({
-            id: 'menu-btn',
-            groupId: 'main',
-            type: 'button',
-            label: 'Menu', // 应该用 translation key
-            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>',
-            onClick: () => {
-                alert("点击按钮")
-            }
-        });
-
-        // 手动 render 一次以显示
-        this.topLeftGroup.render();
+        // 调用 manager 的 initialize 方法初始化引擎
+        return this.engine.initialize(options);
     }
 
     private updateTheme(theme: ThemeConfig) {
+
         if (this.wrapper) {
             this.wrapper.style.backgroundColor = theme.background;
             this.wrapper.style.color = theme.textPrimary;
@@ -106,6 +109,7 @@ export class BimEngine {
     public destroy() {
         this.toolbar?.destroy();
         this.buttonGroup?.destroy();
+        this.engine?.destroy();
         this.dialog = null;
         this.container.innerHTML = '';
     }

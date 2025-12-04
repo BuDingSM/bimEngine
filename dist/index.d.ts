@@ -69,6 +69,7 @@ declare class BimDialog implements IBimComponent {
     private _isInitialized;
     private unsubscribeTheme;
     private unsubscribeLocale;
+    private rafId;
     /**
      * 构造函数
      * @param options 弹窗配置选项
@@ -97,11 +98,11 @@ declare class BimDialog implements IBimComponent {
      */
     private initPosition;
     /**
-     * 初始化拖拽功能
+     * 初始化拖拽功能 (性能优化 + 解决粘手)
      */
     private initDrag;
     /**
-     * 初始化缩放功能
+     * 初始化缩放功能 (性能优化 + 解决粘手)
      */
     private initResize;
     /**
@@ -126,6 +127,7 @@ export declare class BimEngine {
     toolbar: ToolbarManager | null;
     buttonGroup: ButtonGroupManager | null;
     dialog: DialogManager | null;
+    engine: EngineManager | null;
     get localeManager(): LocaleManager;
     get themeManager(): ThemeManager;
     constructor(container: HTMLElement | string, options?: {
@@ -137,7 +139,12 @@ export declare class BimEngine {
     setTheme(theme: 'dark' | 'light'): void;
     setCustomTheme(theme: ThemeConfig): void;
     private init;
-    private createTopLeftGroup;
+    /**
+     * 初始化 3D 引擎组件
+     * 注意：只初始化引擎，不加载模型。模型加载在使用层（如 demo.html）进行
+     * @param options 引擎配置选项（可选）
+     */
+    initEngine(options?: Omit<EngineOptions, 'container'>): boolean;
     private updateTheme;
     destroy(): void;
 }
@@ -219,6 +226,18 @@ export declare interface ClickPayload {
     button: OptButton;
     action: 'activate' | 'deactivate' | 'trigger';
     isActive?: boolean;
+}
+
+export declare function createEngine(r) {
+    const e = r.version || "v1";
+    switch (e) {
+        case "v2":
+        return new Uc(r);
+        case "v1":
+        return new L_(r);
+        :
+        return console.warn(`Version '${e}' not found. Falling back to v2.`), new Uc(r);
+    }
 }
 
 /**
@@ -311,6 +330,65 @@ declare type DialogPosition = 'center' | 'top-left' | 'top-center' | 'top-right'
     y: number;
 };
 
+/**
+ * 3D 引擎管理器
+ * 负责连接 Engine 组件和 BimEngine，向外部暴露简化的 API
+ * 采用延迟初始化模式，用户需主动调用 initialize() 方法
+ */
+declare class EngineManager {
+    /** 3D 引擎挂载的父容器 */
+    private container;
+    /** 3D 引擎组件实例 */
+    private engine;
+    /**
+     * 构造函数
+     * @param container 3D 引擎挂载的目标容器
+     */
+    constructor(container: HTMLElement);
+    /**
+     * 初始化 3D 引擎
+     * @param options 引擎配置选项（可选，如果不提供则使用默认配置）
+     * @returns 是否初始化成功
+     */
+    initialize(options?: Omit<EngineOptions, 'container'>): boolean;
+    /**
+     * 检查 3D 引擎是否已初始化
+     */
+    isInitialized(): boolean;
+    /**
+     * 加载 3D 模型
+     * @param url 模型文件 URL
+     * @param options 加载选项（位置、旋转、缩放）
+     */
+    loadModel(url: string, options?: ModelLoadOptions): void;
+    /**
+     * 获取原始 3D 引擎实例
+     * 用于直接调用第三方引擎的其他 API
+     */
+    getEngine(): any;
+    /**
+     * 销毁 3D 引擎实例
+     */
+    destroy(): void;
+}
+
+/**
+ * 引擎配置选项
+ * 用于 Engine 组件的初始化
+ */
+export declare interface EngineOptions {
+    /** 容器元素 */
+    container: HTMLElement;
+    /** 背景颜色（十六进制数字，如 0x333333） */
+    backgroundColor?: number;
+    /** WebGL 版本 */
+    version?: 'v1' | 'v2';
+    /** 是否显示性能统计 */
+    showStats?: boolean;
+    /** 是否显示视图立方体 */
+    showViewCube?: boolean;
+}
+
 /** 二级菜单展开方向 */
 declare type ExpandDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -383,6 +461,21 @@ declare class LocaleManager {
  * 语言代码类型
  */
 declare type LocaleType = 'zh-CN' | 'en-US';
+
+/**
+ * 模型加载选项
+ * 用于配置模型的位置、旋转和缩放
+ */
+export declare interface ModelLoadOptions {
+    /** 模型初始位置 [x, y, z] */
+    position?: [number, number, number];
+    /** 模型初始旋转 [x, y, z]（弧度） */
+    rotation?: [number, number, number];
+    /** 模型初始缩放 [x, y, z] */
+    scale?: [number, number, number];
+    /** 模型 ID（可选，如果不提供则自动生成） */
+    id?: string;
+}
 
 export declare interface OptButton extends ButtonConfig {
     children?: OptButton[];

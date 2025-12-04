@@ -14,11 +14,12 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
-    z-index: 1000;
+    z-index: 10001; /* 提高 z-index，确保在第三方 SDK (10000) 之上 */
     color: var(--bim-dialog-title-color);
     overflow: hidden;
     min-width: 200px;
     min-height: 100px;
+    pointer-events: auto; /* 确保弹窗可以接收事件 */
 }
 
 .bim-dialog-header {

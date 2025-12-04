@@ -33,6 +33,8 @@
     background-color: var(--bim-btn-group-section-bg, rgba(17, 17, 17, 0.88));
     border-radius: 6px;
     padding: 4px;
+    /* 添加阴影效果，增强视觉层次感 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .bim-btn-group-root.dir-row .bim-btn-group-section {

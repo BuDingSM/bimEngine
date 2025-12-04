@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIM Engine SDK Demo</title>
-    <script src="../dist/bim-engine-sdk.umd.js"></script>
+    <!-- 从本地 lib 目录加载 SDK 文件 -->
+    <script src="./lib/bim-engine-sdk.umd.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -157,6 +158,18 @@
                 <button onclick="setCustomTheme()">自定义 (Red)</button>
             </div>
         </div>
+
+        <!-- 5. 3D 引擎 -->
+        <div class="control-group">
+            <h2>🎮 3D 引擎 (Engine3D)</h2>
+            <div class="btn-container">
+                <button class="primary" onclick="initEngine3D()">初始化引擎</button>
+                <button class="primary" onclick="loadModel()">加载模型</button>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                <div>状态: <span id="engine-status">未初始化</span></div>
+            </div>
+        </div>
     </aside>
 
     <!-- 右侧主区域 -->
@@ -170,6 +183,7 @@
         let isLabelVisible = true;
         let isLocationVisible = true;
         let customGroupAdded = false;
+        let engine3DInitialized = false;
 
         // 初始化引擎
         window.onload = () => {
@@ -177,6 +191,7 @@
                 const Engine = window.LyzBimEngineSDK.BimEngine;
                 try {
                     engine = new Engine('app', { locale: 'zh-CN' });
+                    // initEngine3D();
                     console.log('Engine initialized:', engine);
                 } catch (err) {
                     console.error('Init failed:', err);
@@ -300,6 +315,93 @@
                 componentHover: 'rgba(255, 205, 210, 0.8)',
                 componentActive: '#e57373'
             });
+        }
+
+        // --- 3D 引擎操作 ---
+        /**
+         * 初始化 3D 引擎
+         */
+        function initEngine3D() {
+            if (!engine || !engine.engine) {
+                alert('引擎未创建，请先等待页面加载完成');
+                return;
+            }
+
+            if (engine.engine.isInitialized()) {
+                alert('3D 引擎已经初始化过了');
+                updateEngineStatus('已初始化');
+                return;
+            }
+
+            try {
+                // 初始化引擎，使用默认配置
+                const success = engine.initEngine({
+                    backgroundColor: 0x333333,  // 深色背景
+                    version: 'v1',               // WebGL 版本
+                    showStats: true,             // 显示性能统计
+                    showViewCube: true           // 显示视图立方体
+                });
+
+                if (success) {
+                    engine3DInitialized = true;
+                    updateEngineStatus('已初始化');
+                    console.log('✅ 3D 引擎初始化成功');
+                } else {
+                    updateEngineStatus('初始化失败');
+                    console.error('❌ 3D 引擎初始化失败');
+                }
+            } catch (error) {
+                updateEngineStatus('初始化错误');
+                console.error('❌ 3D 引擎初始化错误:', error);
+            }
+        }
+
+        /**
+         * 加载 3D 模型
+         */
+        function loadModel() {
+            if (!engine || !engine.engine) {
+                alert('引擎未创建，请先等待页面加载完成');
+                return;
+            }
+
+            if (!engine.engine.isInitialized()) {
+                alert('请先初始化 3D 引擎！');
+                return;
+            }
+
+            try {
+                // 加载模型文件（从 model 目录）
+                const modelUrl = './model/gujianzhu.glb';
+
+                engine.engine.loadModel(modelUrl, {
+                    position: [0, 0, 0],    // 初始位置
+                    rotation: [0, 0, 0],       // 初始旋转
+                    scale: [1, 1, 1]         // 初始缩放
+                });
+
+                console.log('✅ 模型加载请求已发送:', modelUrl);
+            } catch (error) {
+                console.error('❌ 模型加载错误:', error);
+            }
+        }
+
+        /**
+         * 更新引擎状态显示
+         */
+        function updateEngineStatus(status) {
+            const statusEl = document.getElementById('engine-status');
+            if (statusEl) {
+                statusEl.textContent = status;
+                // 根据状态设置颜色
+                if (status === '已初始化') {
+                    statusEl.style.color = '#28a745';
+                } else if (status === '初始化失败' || status === '初始化错误') {
+                    statusEl.style.color = '#dc3545';
+                } else {
+                    statusEl.style.color = '#666';
+                }
+            }
         }
     </script>
 </body>

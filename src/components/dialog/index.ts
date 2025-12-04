@@ -20,6 +20,9 @@ export class BimDialog implements IBimComponent {
     private unsubscribeTheme: (() => void) | null = null;
     private unsubscribeLocale: (() => void) | null = null;
 
+    // 性能优化：用于存储 requestAnimationFrame 的 ID
+    private rafId: number | null = null;
+
     /**
      * 构造函数
      * @param options 弹窗配置选项
@@ -116,7 +119,7 @@ export class BimDialog implements IBimComponent {
 
         if (this.options.id) el.id = this.options.id;
 
-        // 应用颜色配置到 CSS 变量 (局部作用域)
+        // 应用颜色配置到 CSS 变量
         const style = el.style;
         if (this.options.backgroundColor) style.setProperty('--bim-dialog-bg', this.options.backgroundColor);
         if (this.options.headerBackgroundColor) style.setProperty('--bim-dialog-header-bg', this.options.headerBackgroundColor);
@@ -139,7 +142,10 @@ export class BimDialog implements IBimComponent {
         const closeBtn = document.createElement('span');
         closeBtn.className = 'bim-dialog-close';
         closeBtn.innerHTML = '&times;';
-        closeBtn.onclick = () => this.close();
+        // 修复 TS 报错：去掉未使用的参数 e
+        closeBtn.onclick = () => {
+            this.close();
+        };
 
         header.appendChild(title);
         header.appendChild(closeBtn);
@@ -163,6 +169,26 @@ export class BimDialog implements IBimComponent {
             el.appendChild(resizeHandle);
         }
 
+        // ==================== 事件拦截核心逻辑 ====================
+        // 定义阻断逻辑：只阻止冒泡，不阻止捕获，也不阻止默认行为(除非显式阻止)
+        const stopPropagation = (e: Event) => {
+            e.stopPropagation();
+        };
+
+        // 现代浏览器和 3D 引擎 (Three.js/Cesium) 交互事件
+        const events = [
+            'click', 'dblclick', 'contextmenu', 'wheel',
+            'mousedown', 'mouseup', 'mousemove',
+            'touchstart', 'touchend', 'touchmove',
+            'pointerdown', 'pointerup', 'pointermove', 'pointerenter', 'pointerleave', 'pointerover', 'pointerout'
+        ];
+
+        // 绑定监听器 (默认冒泡阶段)
+        // 这样内部元素(如关闭按钮)先触发，然后冒泡到这里被拦截，不再传给地图
+        events.forEach(eventType => {
+            el.addEventListener(eventType, stopPropagation, { passive: false });
+        });
+
         return el;
     }
 
@@ -183,7 +209,6 @@ export class BimDialog implements IBimComponent {
      */
     private initPosition() {
         const pos = this.options.position;
-
         const elRect = this.element.getBoundingClientRect();
 
         // 计算相对父容器的定位
@@ -218,7 +243,6 @@ export class BimDialog implements IBimComponent {
             }
         }
 
-        // 简单的边界检查，防止初始位置溢出
         left = Math.max(0, Math.min(left, pW - elW));
         top = Math.max(0, Math.min(top, pH - elH));
 
@@ -227,53 +251,81 @@ export class BimDialog implements IBimComponent {
     }
 
     /**
-     * 初始化拖拽功能
+     * 初始化拖拽功能 (性能优化 + 解决粘手)
      */
     private initDrag() {
         let startX = 0;
         let startY = 0;
         let startLeft = 0;
         let startTop = 0;
+        let containerW = 0;
+        let containerH = 0;
+        let elW = 0;
+        let elH = 0;
 
         const onMouseDown = (e: MouseEvent) => {
-            e.preventDefault();
+            e.preventDefault(); // 阻止默认行为（如选中文本），非常重要，防止卡顿
+            e.stopPropagation(); // 阻止传递给 Three.js
+
             startX = e.clientX;
             startY = e.clientY;
             startLeft = this.element.offsetLeft;
             startTop = this.element.offsetTop;
 
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
+            // 缓存尺寸，减少 reflow
+            containerW = this.container.clientWidth;
+            containerH = this.container.clientHeight;
+            elW = this.element.offsetWidth;
+            elH = this.element.offsetHeight;
+
+            // 关键：使用 capture: true
+            // 确保即使 createDom 阻止了冒泡，document 也能在捕获阶段收到事件
+            document.addEventListener('mousemove', onMouseMove, { capture: true });
+            document.addEventListener('mouseup', onMouseUp, { capture: true });
         };
 
         const onMouseMove = (e: MouseEvent) => {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
+            e.preventDefault();
+            e.stopPropagation();
 
-            let newLeft = startLeft + dx;
-            let newTop = startTop + dy;
+            // 节流优化：使用 requestAnimationFrame
+            if (this.rafId) return;
 
-            // 边界限制，防止拖出容器
-            const maxLeft = this.container.clientWidth - this.element.offsetWidth;
-            const maxTop = this.container.clientHeight - this.element.offsetHeight;
+            this.rafId = requestAnimationFrame(() => {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
 
-            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
-            newTop = Math.max(0, Math.min(newTop, maxTop));
+                let newLeft = startLeft + dx;
+                let newTop = startTop + dy;
 
-            this.element.style.left = `${newLeft}px`;
-            this.element.style.top = `${newTop}px`;
+                const maxLeft = containerW - elW;
+                const maxTop = containerH - elH;
+
+                newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                newTop = Math.max(0, Math.min(newTop, maxTop));
+
+                this.element.style.left = `${newLeft}px`;
+                this.element.style.top = `${newTop}px`;
+
+                this.rafId = null;
+            });
         };
 
         const onMouseUp = () => {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+            // 移除监听
+            document.removeEventListener('mousemove', onMouseMove, { capture: true });
+            document.removeEventListener('mouseup', onMouseUp, { capture: true });
         };
 
         this.header.addEventListener('mousedown', onMouseDown);
     }
 
     /**
-     * 初始化缩放功能
+     * 初始化缩放功能 (性能优化 + 解决粘手)
      */
     private initResize() {
         const handle = this.element.querySelector('.bim-dialog-resize-handle') as HTMLElement;
@@ -292,24 +344,38 @@ export class BimDialog implements IBimComponent {
             startW = this.element.offsetWidth;
             startH = this.element.offsetHeight;
 
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
+            // 关键：使用 capture: true
+            document.addEventListener('mousemove', onMouseMove, { capture: true });
+            document.addEventListener('mouseup', onMouseUp, { capture: true });
         };
 
         const onMouseMove = (e: MouseEvent) => {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
+            e.preventDefault();
+            e.stopPropagation();
 
-            const newW = Math.max(this.options.minWidth || 100, startW + dx);
-            const newH = Math.max(this.options.minHeight || 50, startH + dy);
+            if (this.rafId) return;
 
-            this.element.style.width = `${newW}px`;
-            this.element.style.height = `${newH}px`;
+            this.rafId = requestAnimationFrame(() => {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                const newW = Math.max(this.options.minWidth || 100, startW + dx);
+                const newH = Math.max(this.options.minHeight || 50, startH + dy);
+
+                this.element.style.width = `${newW}px`;
+                this.element.style.height = `${newH}px`;
+
+                this.rafId = null;
+            });
         };
 
         const onMouseUp = () => {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+            document.removeEventListener('mousemove', onMouseMove, { capture: true });
+            document.removeEventListener('mouseup', onMouseUp, { capture: true });
         };
 
         handle.addEventListener('mousedown', onMouseDown);
@@ -333,6 +399,13 @@ export class BimDialog implements IBimComponent {
      */
     public close() {
         if (this._isDestroyed) return;
+
+        // 清理可能存在的动画帧，防止报错
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+        }
+
         if (this.unsubscribeTheme) {
             this.unsubscribeTheme();
             this.unsubscribeTheme = null;

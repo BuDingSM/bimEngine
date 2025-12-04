@@ -17,7 +17,10 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "dev:all": "./dev.sh",
+    "dev:demo": "cd demo && npm run copy-sdk && npm run dev",
+    "dev:demo-vue": "cd demo-vue && npm run copy-sdk && npm run dev"
   },
   "keywords": [
     "bim",
