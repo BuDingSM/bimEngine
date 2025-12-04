@@ -1,0 +1,22 @@
+{
+  "name": "bim-engine-demo-vue",
+  "version": "1.0.0",
+  "description": "BIM Engine SDK Vue3 Demo",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "copy-sdk": "mkdir -p public/lib && cp ../dist/bim-engine-sdk.umd.js public/lib/ && cp ../dist/bim-engine-sdk.umd.js.map public/lib/ 2>/dev/null || true"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.0",
+    "vue-tsc": "^2.0.6"
+  }
+}
+
