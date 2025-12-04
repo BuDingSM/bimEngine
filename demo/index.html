@@ -6,23 +6,163 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIM Engine SDK Demo</title>
     <script src="../dist/bim-engine-sdk.umd.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            /* 防止整个页面滚动 */
+        }
+
+        /* 左侧侧边栏：控制面板 */
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+            /* 内容过多时可滚动 */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+
+        .sidebar h1 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .control-group {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .control-group h2 {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1 1 auto;
+            /* 按钮自动填充 */
+        }
+
+        button:hover {
+            background: #f0f0f0;
+            border-color: #ccc;
+        }
+
+        button.primary {
+            background: #0078d4;
+            color: white;
+            border-color: #0063b1;
+        }
+
+        button.primary:hover {
+            background: #0063b1;
+        }
+
+        /* 右侧主内容区：引擎展示 */
+        .main-content {
+            flex: 1;
+            position: relative;
+            background: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            position: relative;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="app" style="width: 100%; height: 500px; border: 1px dashed #ccc;"></div>
+    <!-- 左侧控制面板 -->
+    <aside class="sidebar">
+        <h1>BIM SDK Demo</h1>
 
-    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-        <button onclick="toggleToolbar()">切换工具栏显隐</button>
-        <button onclick="toggleLabel()">切换文字标签</button>
-        <button onclick="addCustomGroup()">添加自定义组(最前)</button>
-        <button onclick="addCustomButton()">添加按钮到自定义组</button>
-        <button onclick="toggleLocationBtn()">切换"定位"按钮显隐</button>
-        <button onclick="changeToolbarColor()">修改工具栏颜色 (蓝色)</button>
-        <button onclick="changeToolbarStyleFull()">修改工具栏样式 (浅色主题)</button>
-        <button onclick="resetToolbarStyle()">重置工具栏样式</button>
-        <button onclick="openRedDialog()">打开红色弹窗 (样式定制)</button>
-        <button onclick="openCustomHeaderDialog()">打开自定义标题弹窗</button>
-    </div>
+        <!-- 1. 语言设置 -->
+        <div class="control-group">
+            <h2>🌍 语言 (Language)</h2>
+            <div class="btn-container">
+                <button class="primary" onclick="setLang('zh-CN')">中文</button>
+                <button class="primary" onclick="setLang('en-US')">English</button>
+            </div>
+        </div>
+
+        <!-- 2. 弹窗测试 -->
+        <div class="control-group">
+            <h2>🪟 弹窗 (Dialog)</h2>
+            <div class="btn-container">
+                <button onclick="openTestDialog()">测试弹窗</button>
+                <button onclick="openInfoDialog()">信息弹窗</button>
+                <button onclick="openRedDialog()">警告弹窗</button>
+            </div>
+        </div>
+
+        <!-- 3. 工具栏操作 -->
+        <div class="control-group">
+            <h2>🛠️ 工具栏 (Toolbar)</h2>
+            <div class="btn-container">
+                <button onclick="toggleToolbar()">显隐工具栏</button>
+                <button onclick="toggleLabel()">显隐标签</button>
+                <button onclick="toggleLocationBtn()">显隐定位按钮</button>
+            </div>
+            <div class="btn-container" style="margin-top: 8px;">
+                <button onclick="addCustomGroup()">加组</button>
+                <button onclick="addCustomButton()">加按钮</button>
+            </div>
+        </div>
+
+        <!-- 4. 样式主题 -->
+        <div class="control-group">
+            <h2>🎨 样式 (Theme)</h2>
+            <div class="btn-container">
+                <button onclick="setTheme('dark')">深色 (Dark)</button>
+                <button onclick="setTheme('light')">浅色 (Light)</button>
+                <button onclick="setCustomTheme()">自定义 (Red)</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 右侧主区域 -->
+    <main class="main-content">
+        <div id="app"></div>
+    </main>
 
     <script>
         let engine = null;
@@ -31,13 +171,12 @@
         let isLocationVisible = true;
         let customGroupAdded = false;
 
-        // 等 SDK ��载
+        // 初始化引擎
         window.onload = () => {
             if (window.LyzBimEngineSDK) {
                 const Engine = window.LyzBimEngineSDK.BimEngine;
-
                 try {
-                    engine = new Engine(document.getElementById('app'));
+                    engine = new Engine('app', { locale: 'zh-CN' });
                     console.log('Engine initialized:', engine);
                 } catch (err) {
                     console.error('Init failed:', err);
@@ -47,6 +186,45 @@
             }
         };
 
+        // --- 语言设置 ---
+        function setLang(lang) {
+            if (engine) engine.setLocale(lang);
+        }
+
+        // --- 弹窗测试 ---
+        function openTestDialog() {
+            if (!engine || !engine.dialog) return;
+            engine.dialog.create({
+                title: 'dialog.testTitle',
+                width: 350,
+                height: 200,
+                position: 'center',
+                draggable: true,
+                resizable: true
+            });
+        }
+
+        function openInfoDialog() {
+            if (!engine || !engine.dialog) return;
+            engine.dialog.showInfoDialog();
+        }
+
+        function openRedDialog() {
+            if (!engine || !engine.dialog) return;
+            engine.dialog.create({
+                title: 'Alert',
+                content: '<div style="color: #ffcccc;">Critical Warning!</div>',
+                width: 300,
+                height: 150,
+                backgroundColor: 'rgba(100, 0, 0, 0.95)',
+                headerBackgroundColor: '#cc0000',
+                titleColor: '#ffffff',
+                borderColor: '#ff6666',
+                position: { x: 50, y: 50 }
+            });
+        }
+
+        // --- 工具栏操作 ---
         function toggleToolbar() {
             if (!engine || !engine.toolbar) return;
             isToolbarVisible = !isToolbarVisible;
@@ -59,110 +237,68 @@
             engine.toolbar.setShowLabel(isLabelVisible);
         }
 
+        function toggleLocationBtn() {
+            if (!engine || !engine.toolbar) return;
+            isLocationVisible = !isLocationVisible;
+            engine.toolbar.setButtonVisibility('location', isLocationVisible);
+        }
+
         function addCustomGroup() {
             if (!engine || !engine.toolbar) return;
             if (customGroupAdded) {
                 alert('已添加过');
                 return;
             }
-            // 添加到 group-1 之前
             engine.toolbar.addGroup('custom-group', 'group-1');
             customGroupAdded = true;
-            console.log('Added custom group');
         }
 
         function addCustomButton() {
             if (!engine || !engine.toolbar) return;
             if (!customGroupAdded) {
-                alert('请先添加自定义组');
+                alert('Please add custom group first / 请先添加自定义组');
                 return;
             }
-
             const btnId = 'custom-btn-' + Date.now();
-
             engine.toolbar.addButton({
                 id: btnId,
                 groupId: 'custom-group',
                 type: 'button',
-                label: '新按钮',
-                // 一个简单的笑脸 SVG
+                label: 'New',
                 icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>',
                 onClick: (btn) => {
-                    alert('你点击了动态添加的按钮: ' + btn.label);
+                    alert('Clicked: ' + btn.label);
                 }
             });
         }
 
-        function toggleLocationBtn() {
-            if (!engine || !engine.toolbar) return;
-            isLocationVisible = !isLocationVisible;
-            // location 按钮的 ID 是 'location'
-            engine.toolbar.setButtonVisibility('location', isLocationVisible);
+        // --- 主题操作 ---
+        function setTheme(themeName) {
+            if (engine) engine.setTheme(themeName);
         }
 
-        function changeToolbarColor() {
-            if (!engine || !engine.toolbar) return;
-            // 仅修改背景色
-            engine.toolbar.setBackgroundColor('rgba(0, 100, 200, 0.9)');
-        }
+        function setCustomTheme() {
+            if (!engine) return;
+            // 定义一个红色主题
+            engine.setCustomTheme({
+                name: 'red-alert',
+                primary: '#d32f2f',
+                primaryHover: '#b71c1c',
 
-        function changeToolbarStyleFull() {
-            if (!engine || !engine.toolbar) return;
-            // 完整的浅色主题配置
-            engine.toolbar.setColors({
-                backgroundColor: '#f0f0f0',
-                btnBackgroundColor: '#ffffff',
-                btnHoverColor: '#e0e0e0',
-                btnActiveColor: '#d0d0d0',
-                iconColor: '#333333',
-                iconActiveColor: '#0078d4',
-                textColor: '#666666',
-                textActiveColor: '#000000'
-            });
-        }
+                background: '#ffebee', // 浅红背景
+                panelBackground: 'rgba(255, 255, 255, 0.9)',
 
-        function resetToolbarStyle() {
-            if (!engine || !engine.toolbar) return;
-            // 重置为默认深色主题
-            engine.toolbar.setColors({
-                backgroundColor: 'rgba(17, 17, 17, 0.88)',
-                btnBackgroundColor: 'transparent',
-                btnHoverColor: '#444',
-                btnActiveColor: 'rgba(255, 255, 255, 0.15)',
-                iconColor: '#ccc',
-                iconActiveColor: '#fff',
-                textColor: '#ccc',
-                textActiveColor: '#fff'
-            });
-        }
+                textPrimary: '#b71c1c',
+                textSecondary: '#e57373',
 
-        function openRedDialog() {
-            if (!engine || !engine.dialog) return;
-            engine.dialog.create({
-                title: '警报',
-                content: '<div style="color: #ffcccc;">这是一个高度定制的警告弹窗。<br>注意查看标题栏和边框颜色。</div>',
-                width: 300,
-                height: 150,
-                backgroundColor: 'rgba(100, 0, 0, 0.95)',
-                headerBackgroundColor: '#cc0000',
-                titleColor: '#ffffff',
-                borderColor: '#ff6666',
-                position: { x: 50, y: 50 } // 自定义坐标
-            });
-        }
+                border: '#ffcdd2',
 
-        function openCustomHeaderDialog() {
-            if (!engine || !engine.dialog) return;
-            engine.dialog.create({
-                title: '自定义样式弹窗',
-                content: '观察标题栏背景和文字颜色。',
-                width: 300,
-                headerBackgroundColor: '#0078d4', // 蓝色标题栏
-                titleColor: '#ffffff',
-                backgroundColor: '#ffffff', // 白色内容背景
-                textColor: '#333333',       // 深色文字
-                borderColor: '#0078d4',     // 蓝色边框
-                position: 'center'
+                icon: '#d32f2f',
+                iconActive: '#b71c1c',
+
+                componentBackground: 'rgba(255, 205, 210, 0.3)',
+                componentHover: 'rgba(255, 205, 210, 0.8)',
+                componentActive: '#e57373'
             });
         }
     </script>

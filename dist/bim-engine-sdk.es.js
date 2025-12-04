@@ -1,365 +1,580 @@
-(function(){"use strict";try{if(typeof document<"u"){var o=document.createElement("style");o.appendChild(document.createTextNode('.bim-engine-wrapper{position:relative;width:100%;height:100%;font-family:sans-serif;color:#333;padding:20px;background-color:#e16969;border-radius:8px;border:1px solid #e0e0e0;box-sizing:border-box}.bim-engine-opt-btn-container{position:absolute;bottom:20px;left:50%;transform:translate(-50%);z-index:100}:root{--bim-toolbar-bg: rgba(17, 17, 17, .88);--bim-btn-bg: transparent;--bim-btn-hover-bg: #444;--bim-btn-active-bg: rgba(255, 255, 255, .15);--bim-icon-color: #ccc;--bim-icon-active-color: #fff;--bim-btn-text-color: #ccc;--bim-btn-text-active-color: #fff}.toolbar-container{display:flex;align-items:center;max-width:100%;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}.toolbar-container::-webkit-scrollbar{display:none}.opt-btn-group{overflow:hidden;display:flex;align-items:center;flex-shrink:0;background-color:var(--bim-toolbar-bg);border-radius:4px;padding:4px 8px}.has-divider{margin-right:16px}.opt-btn-wrapper{position:relative}.opt-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;width:50px;min-height:50px;padding:4px;cursor:pointer;background-color:var(--bim-btn-bg);color:var(--bim-icon-color);transition:all .2s;border-bottom:2px solid transparent}.opt-btn:hover{background-color:var(--bim-btn-hover-bg);color:var(--bim-icon-active-color)}.opt-btn.active{background-color:var(--bim-btn-active-bg);color:var(--bim-icon-active-color);border-bottom:2px solid #fff}.opt-btn.disabled{opacity:.5;cursor:not-allowed}.opt-btn-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.opt-btn-icon svg{width:100%;height:100%}.opt-btn-label{font-size:10px;margin-top:2px;color:var(--bim-btn-text-color)}.opt-btn:hover .opt-btn-label,.opt-btn.active .opt-btn-label{color:var(--bim-btn-text-active-color)}.opt-btn-arrow{font-size:8px;position:absolute;top:2px;right:2px;opacity:.6;transition:transform .2s ease}.opt-btn-arrow.rotated{transform:rotate(180deg)}.opt-btn.no-label .opt-btn-arrow{top:2px;right:2px}.opt-btn-dropdown{position:fixed;transform:translate(-50%,-100%);background-color:var(--bim-toolbar-bg);border-radius:4px;overflow:hidden;box-shadow:0 4px 12px #0000004d;min-width:50px;z-index:9999;display:flex;flex-direction:column}.opt-btn-dropdown-item{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--bim-icon-color);cursor:pointer;transition:background .2s;white-space:nowrap;min-width:50px;min-height:50px;padding:4px;background-color:var(--bim-btn-bg)}.opt-btn-dropdown-item:hover{background-color:var(--bim-btn-hover-bg);color:var(--bim-icon-active-color)}.opt-btn-dropdown-item .opt-btn-icon.small{width:30px;height:30px;margin-right:0;margin-bottom:4px}.opt-btn-dropdown-item span{font-size:10px;color:var(--bim-btn-text-color)}.opt-btn-dropdown-item:hover span{color:var(--bim-btn-text-active-color)}.opt-btn.no-label .opt-btn-icon{width:32px;height:32px}:root{--bim-dialog-bg: rgba(17, 17, 17, .95);--bim-dialog-header-bg: #2a2a2a;--bim-dialog-title-color: #fff;--bim-dialog-text-color: #ccc;--bim-dialog-border-color: #444}.bim-dialog{position:absolute;background-color:var(--bim-dialog-bg);border:1px solid var(--bim-dialog-border-color);border-radius:6px;box-shadow:0 4px 12px #0000004d;display:flex;flex-direction:column;z-index:1000;color:var(--bim-dialog-title-color);overflow:hidden;min-width:200px;min-height:100px}.bim-dialog-header{height:32px;background-color:var(--bim-dialog-header-bg);display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:default;-webkit-user-select:none;user-select:none;border-bottom:1px solid var(--bim-dialog-border-color);flex-shrink:0}.bim-dialog-header.draggable{cursor:move}.bim-dialog-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bim-dialog-title-color)}.bim-dialog-close{cursor:pointer;font-size:18px;color:#999;line-height:1;margin-left:8px}.bim-dialog-close:hover{color:#fff}.bim-dialog-content{flex:1;padding:10px;overflow:auto;font-size:14px;color:var(--bim-dialog-text-color)}.bim-dialog-resize-handle{position:absolute;width:10px;height:10px;bottom:0;right:0;cursor:se-resize;z-index:10}.bim-dialog-resize-handle:after{content:"";position:absolute;bottom:3px;right:3px;width:6px;height:6px;border-right:2px solid #666;border-bottom:2px solid #666}.bim-dialog-resize-handle:hover:after{border-color:#fff}.bim-info-dialog-content{padding:16px;font-family:sans-serif;color:#333}.bim-info-dialog-content h3{margin-top:0;margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:8px;color:#0078d4}.bim-info-dialog-content ul{list-style:none;padding:0;margin:0}.bim-info-dialog-content li{margin-bottom:8px;font-size:14px;display:flex}.bim-info-dialog-content li strong{width:80px;color:#555}')),document.head.appendChild(o)}}catch(t){console.error("vite-plugin-css-injected-by-js",t)}})();
-class f {
-  /** 挂载容器 */
-  container;
-  /** 组件配置选项 */
-  options;
-  /** 按钮组列表，按顺序存储 */
-  groups = [];
-  /** 当前处于激活状态的按钮 ID 集合 */
-  activeBtnIds = /* @__PURE__ */ new Set();
-  /** 按钮 DOM 元素的引用映射，方便快速查找 */
-  btnRefs = /* @__PURE__ */ new Map();
-  /** 当��显示的下拉菜单元素 */
-  dropdownElement = null;
-  /** 鼠标悬停计时器，用于处理菜单显示的防抖 */
-  hoverTimeout = null;
-  /** 默认图标 SVG */
-  DEFAULT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
+(function(){"use strict";try{if(typeof document<"u"){var o=document.createElement("style");o.appendChild(document.createTextNode('.bim-engine-wrapper{position:relative;width:100%;height:100%;font-family:sans-serif;color:#333;padding:20px;background-color:#e16969;border-radius:8px;border:1px solid #e0e0e0;box-sizing:border-box}.bim-engine-opt-btn-container{position:absolute;bottom:20px;left:50%;transform:translate(-50%);z-index:100}.bim-btn-group-root{display:flex;gap:8px;z-index:1000;position:absolute;pointer-events:auto}.bim-btn-group-root.static{position:relative;inset:auto;transform:none}.bim-btn-group-root.dir-row{flex-direction:row;align-items:center}.bim-btn-group-root.dir-column{flex-direction:column;align-items:stretch}.bim-btn-group-section{display:flex;gap:4px;background-color:var(--bim-btn-group-section-bg, rgba(17, 17, 17, .88));border-radius:6px;padding:4px}.bim-btn-group-root.dir-row .bim-btn-group-section{flex-direction:row;align-items:center}.bim-btn-group-root.dir-column .bim-btn-group-section{flex-direction:column}.opt-btn-wrapper{position:relative}.opt-btn{display:flex;cursor:pointer;border-radius:4px;transition:background-color .2s,color .2s;color:var(--bim-btn-text-color, #ccc);background-color:var(--bim-btn-bg, transparent);padding:6px;align-items:center;position:relative;justify-content:center}.opt-btn:hover{background-color:var(--bim-btn-hover-bg, #444)}.opt-btn.active{background-color:var(--bim-btn-active-bg, rgba(255, 255, 255, .15));color:var(--bim-btn-text-active-color, #fff)}.opt-btn.active .opt-btn-icon{color:var(--bim-icon-active-color, #fff)}.opt-btn.disabled{opacity:.5;cursor:not-allowed}.opt-btn-icon{width:var(--bim-icon-size, 24px);height:var(--bim-icon-size, 24px);display:flex;align-items:center;justify-content:center;color:var(--bim-icon-color, #ccc);flex-shrink:0}.opt-btn-icon svg{width:100%;height:100%;fill:currentColor}.opt-btn-arrow{font-size:10px;opacity:.6;transition:transform .2s;display:inline-block;margin-left:4px}.opt-btn-arrow.rotated{transform:rotate(180deg)}.opt-btn-text-wrapper{display:flex;align-items:center;justify-content:center;pointer-events:none}.opt-btn-label{display:inline}.opt-btn.no-label .opt-btn-label{display:none}.opt-btn.align-vertical:not(.no-label){flex-direction:column;text-align:center}.opt-btn.align-vertical:not(.no-label) .opt-btn-text-wrapper{margin-top:4px}.opt-btn.align-vertical:not(.no-label) .opt-btn-label{font-size:12px;line-height:1.2}.opt-btn.align-horizontal:not(.no-label){flex-direction:row}.opt-btn.align-horizontal:not(.no-label) .opt-btn-text-wrapper{margin-left:8px}.opt-btn.align-horizontal:not(.no-label) .opt-btn-label{font-size:14px}.opt-btn.no-label .opt-btn-text-wrapper{width:0;height:0;margin:0;padding:0;overflow:visible;position:absolute;top:0;right:0}.opt-btn.no-label .opt-btn-arrow{position:absolute;top:2px;right:2px;margin:0;font-size:8px}.opt-btn-dropdown{position:absolute;background-color:var(--bim-toolbar-bg, rgba(17, 17, 17, .95));border-radius:4px;padding:4px;box-shadow:0 4px 12px #0003;z-index:1001;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.1);opacity:0;visibility:hidden;transform:translateY(-10px);transition:opacity .2s ease,transform .2s cubic-bezier(.2,0,.2,1),visibility .2s}@keyframes dropdown-fade-in{0%{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}.opt-btn-dropdown{animation:dropdown-fade-in .2s cubic-bezier(.2,0,.2,1) forwards;opacity:1;visibility:visible;transform:none}.opt-btn-dropdown-item{display:flex;align-items:center;padding:8px 12px;cursor:pointer;border-radius:4px;color:var(--bim-btn-text-color, #ccc);transition:background .2s;box-sizing:border-box}.opt-btn-dropdown-item:hover{background-color:var(--bim-btn-hover-bg, #444);color:#fff}.opt-btn-dropdown-item.align-horizontal{flex-direction:row}.opt-btn-dropdown-item.align-horizontal .opt-btn-icon{width:18px;height:18px;margin-right:8px}.opt-btn-dropdown-item.align-vertical{flex-direction:column;text-align:center}.opt-btn-dropdown-item.align-vertical .opt-btn-icon{width:24px;height:24px;margin-bottom:4px}.opt-btn-dropdown-item.align-vertical .opt-btn-dropdown-label{font-size:12px}.bim-btn-group-root.is-bottom-toolbar .opt-btn-icon{width:32px;height:32px}.bim-btn-group-root.is-bottom-toolbar .opt-btn{padding:8px}:root{--bim-dialog-bg: rgba(17, 17, 17, .95);--bim-dialog-header-bg: #2a2a2a;--bim-dialog-title-color: #fff;--bim-dialog-text-color: #ccc;--bim-dialog-border-color: #444}.bim-dialog{position:absolute;background-color:var(--bim-dialog-bg);border:1px solid var(--bim-dialog-border-color);border-radius:6px;box-shadow:0 4px 12px #0000004d;display:flex;flex-direction:column;z-index:1000;color:var(--bim-dialog-title-color);overflow:hidden;min-width:200px;min-height:100px}.bim-dialog-header{height:32px;background-color:var(--bim-dialog-header-bg);display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:default;-webkit-user-select:none;user-select:none;border-bottom:1px solid var(--bim-dialog-border-color);flex-shrink:0}.bim-dialog-header.draggable{cursor:move}.bim-dialog-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bim-dialog-title-color)}.bim-dialog-close{cursor:pointer;font-size:18px;color:#999;line-height:1;margin-left:8px}.bim-dialog-close:hover{color:#fff}.bim-dialog-content{flex:1;padding:10px;overflow:auto;font-size:14px;color:var(--bim-dialog-text-color)}.bim-dialog-resize-handle{position:absolute;width:10px;height:10px;bottom:0;right:0;cursor:se-resize;z-index:10}.bim-dialog-resize-handle:after{content:"";position:absolute;bottom:3px;right:3px;width:6px;height:6px;border-right:2px solid #666;border-bottom:2px solid #666}.bim-dialog-resize-handle:hover:after{border-color:#fff}.bim-info-dialog-content{padding:16px;font-family:sans-serif;color:#333}.bim-info-dialog-content h3{margin-top:0;margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:8px;color:#0078d4}.bim-info-dialog-content ul{list-style:none;padding:0;margin:0}.bim-info-dialog-content li{margin-bottom:8px;font-size:14px;display:flex}.bim-info-dialog-content li strong{width:80px;color:#555}')),document.head.appendChild(o)}}catch(t){console.error("vite-plugin-css-injected-by-js",t)}})();
+const w = {
+  common: {
+    title: "BimEngine",
+    description: "这是一个使用 BIM-ENGINE。",
+    openTestDialog: "打开测试弹窗",
+    openInfoDialog: "打开信息弹窗 (封装版)"
+  },
+  toolbar: {
+    home: "首页",
+    info: "信息",
+    location: "定位",
+    setting: "设置",
+    walk: "漫游",
+    walkPerson: "人视",
+    walkBird: "鸟瞰",
+    walkMenu: "菜单"
+  },
+  dialog: {
+    testTitle: "测试弹窗",
+    testContent: '<div style="padding: 10px;">这是一个 <b>可拖拽</b> 且 <b>可缩放</b> 的弹窗。<br><br>你可以尝试拖动标题栏，或者拖动右下角改变大小。</div>'
+  }
+}, L = {
+  common: {
+    title: "BimEngine",
+    description: "This is a BIM-ENGINE demo.",
+    openTestDialog: "Open Test Dialog",
+    openInfoDialog: "Open Info Dialog (Wrapped)"
+  },
+  toolbar: {
+    home: "Home",
+    info: "Info",
+    location: "Location",
+    setting: "Settings",
+    walk: "Walk",
+    walkPerson: "Person",
+    walkBird: "Bird Eye",
+    walkMenu: "Menu"
+  },
+  dialog: {
+    testTitle: "Test Dialog",
+    testContent: '<div style="padding: 10px;">This is a <b>draggable</b> and <b>resizable</b> dialog.<br><br>Try dragging the title bar or resizing from the bottom-right corner.</div>'
+  }
+};
+class T {
+  currentLocale = "zh-CN";
+  messages = {
+    "zh-CN": w,
+    "en-US": L
+  };
+  listeners = [];
+  constructor() {
+  }
   /**
-   * 构造函数
-   * @param options 配置选项
+   * 获取当前语言
    */
+  getLocale() {
+    return this.currentLocale;
+  }
+  /**
+   * 切换语言
+   */
+  setLocale(t) {
+    this.currentLocale !== t && (this.currentLocale = t, this.notifyListeners());
+  }
+  /**
+   * 翻译核心方法
+   */
+  t(t) {
+    if (!t) return "";
+    const e = t.split(".");
+    let o = this.messages[this.currentLocale];
+    for (const i of e)
+      if (o && typeof o == "object" && i in o)
+        o = o[i];
+      else
+        return t;
+    return o;
+  }
+  /**
+   * 订阅变更
+   */
+  subscribe(t) {
+    return this.listeners.push(t), () => {
+      this.listeners = this.listeners.filter((e) => e !== t);
+    };
+  }
+  notifyListeners() {
+    this.listeners.forEach((t) => t(this.currentLocale));
+  }
+}
+const p = new T(), b = (c) => p.t(c), g = {
+  name: "dark",
+  primary: "#0078d4",
+  primaryHover: "#0063b1",
+  // 修改：背景色统一为浅灰，不再跟随深色模式变黑
+  background: "#f5f5f5",
+  panelBackground: "rgba(30, 30, 30, 0.9)",
+  // 注意：如果背景是浅色，主文字颜色通常需要是深色才能看清
+  // 但这里的 textPrimary 主要是用于 UI 组件内部的。
+  // 如果 BimEngine wrapper 上的文字直接显示在 background 上，
+  // 我们可能需要区分 "UI文字" 和 "页面文字"。
+  // 目前架构中：
+  // theme.textPrimary 会应用到 wrapper.style.color (BimEngine.ts)
+  // 以及 Toolbar/Dialog 的文字颜色。
+  // 如果背景是浅灰，而 wrapper 文字设置为白色 (#ffffff)，那就看不清了。
+  // 这是一个语义冲突：
+  // 1. Panel (Toolbar/Dialog) 是黑底，需要白字。
+  // 2. Background (Wrapper) 是白底，需要黑字。
+  // 既然您要求背景统一浅灰，那么 Wrapper 上的“直接子文本”应该是深色。
+  // 但 Toolbar/Dialog 仍然是深色模式（黑底），它们需要白字。
+  // 妥协方案：
+  // 保持 textPrimary 为白色（为了适配黑���的 Toolbar/Dialog）。
+  // 但是在 BimEngine 中，如果背景强制改为浅色，Wrapper 的默认文字颜色可能需要单独处理，
+  // 或者我们可以认为 "Wrapper" 主要是承载 UI 组件的，直接写在 Wrapper 上的文字（标题/描述）
+  // 应该有自己的样式，而不是直接继承 theme.textPrimary。
+  // 在之前的 BimEngine.ts 中：
+  // this.wrapper.style.color = theme.textPrimary;
+  // 如果背景变浅灰，这里 textPrimary 还是白色的话，标题就看不见了。
+  // 所以，深色模式下：
+  // 背景：浅灰
+  // 组件：深黑
+  // 组件文字：白
+  // 页面文字：黑 (问题点)
+  // 让我们先按您的要求改背景。通常这种情况下，ThemeConfig 可能需要区分 
+  // contentText (页面内容文字) 和 uiText (组件文字)。
+  // 但为了不破坏现有结构，我将假定 textPrimary 主要服务于 UI 组件。
+  // 为了让 Wrapper 上的标题可见，我们可能需要在 BimEngine 中移除对 wrapper.style.color 的强制设置，
+  // 或者在 presets 里把 textPrimary 改回来？不对，改回来 Toolbar 就看不清了。
+  // 方案：我将仅修改 background。
+  // 至于 Wrapper 上的标题（BimEngine 标题），由于在最新的 BimEngine.ts 中
+  // ���们已经移除了 titleEl 和 descEl（在之前的重构中），
+  // 所以现在 Wrapper 里主要是 Toolbar 和 Dialog，它们有自己的 panelBackground。
+  // 只要 Toolbar/Dialog 内部正常即可。
+  textPrimary: "#ffffff",
+  textSecondary: "#cccccc",
+  border: "#444444",
+  icon: "#cccccc",
+  iconActive: "#ffffff",
+  componentBackground: "transparent",
+  componentHover: "#333333",
+  componentActive: "rgba(255, 255, 255, 0.1)"
+}, x = {
+  name: "light",
+  primary: "#0078d4",
+  primaryHover: "#106ebe",
+  // 统一为浅灰
+  background: "#f5f5f5",
+  panelBackground: "#ffffff",
+  textPrimary: "#333333",
+  textSecondary: "#666666",
+  border: "#e0e0e0",
+  icon: "#555555",
+  iconActive: "#0078d4",
+  componentBackground: "transparent",
+  componentHover: "#f0f0f0",
+  componentActive: "#e0e0e0"
+};
+class E {
+  currentTheme = g;
+  listeners = [];
+  constructor() {
+  }
+  /**
+   * 获取当前主题配置
+   */
+  getTheme() {
+    return this.currentTheme;
+  }
+  /**
+   * 切换预设主题
+   * @param themeName 'dark' | 'light'
+   */
+  setTheme(t) {
+    t === "light" ? this.applyTheme(x) : this.applyTheme(g);
+  }
+  /**
+   * 应用自定义主题配置
+   * @param theme 配置对象
+   */
+  setCustomTheme(t) {
+    this.applyTheme(t);
+  }
+  /**
+   * 内部应用主题逻辑
+   */
+  applyTheme(t) {
+    this.currentTheme = t, this.notifyListeners();
+  }
+  /**
+   * 订阅主题变更
+   */
+  subscribe(t) {
+    return this.listeners.push(t), t(this.currentTheme), () => {
+      this.listeners = this.listeners.filter((e) => e !== t);
+    };
+  }
+  notifyListeners() {
+    this.listeners.forEach((t) => t(this.currentTheme));
+  }
+}
+const d = new E();
+class v {
+  container;
+  options;
+  groups = [];
+  activeBtnIds = /* @__PURE__ */ new Set();
+  btnRefs = /* @__PURE__ */ new Map();
+  dropdownElement = null;
+  hoverTimeout = null;
+  customColors = /* @__PURE__ */ new Set();
+  // 记录用户自定义的颜色属性
+  unsubscribeLocale = null;
+  unsubscribeTheme = null;
+  DEFAULT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
   constructor(t) {
-    const o = typeof t.container == "string" ? document.getElementById(t.container) : t.container;
-    if (!o) throw new Error("Container not found");
-    this.container = o, this.options = {
+    const e = typeof t.container == "string" ? document.getElementById(t.container) : t.container;
+    if (!e) throw new Error("Container not found");
+    this.container = e, this.options = {
       showLabel: !0,
       visibility: {},
+      direction: "row",
+      // 默认横向
+      position: "static",
+      // 默认静态定位
+      align: "vertical",
+      // 默认图标在上
+      expand: "down",
+      // 默认向下展开
       ...t
-    }, this.initContainer(), this.applyStyles();
+    }, [
+      "backgroundColor",
+      "btnBackgroundColor",
+      "btnHoverColor",
+      "btnActiveColor",
+      "iconColor",
+      "iconActiveColor",
+      "textColor",
+      "textActiveColor"
+    ].forEach((i) => {
+      t[i] && this.customColors.add(i);
+    }), this.initContainer(), this.applyStyles();
   }
-  /**
-   * 初始化容器
-   */
   initContainer() {
-    this.container.innerHTML = "", this.container.classList.add("toolbar-root");
+    this.container.innerHTML = "", this.container.classList.add("bim-btn-group-root"), this.options.direction === "column" ? this.container.classList.add("dir-column") : this.container.classList.add("dir-row"), this.options.className && this.container.classList.add(this.options.className), this.updatePosition();
+  }
+  updatePosition() {
+    const t = this.options.position, e = this.container.style;
+    if (e.top = "", e.bottom = "", e.left = "", e.right = "", e.transform = "", t === "static") {
+      this.container.classList.add("static");
+      return;
+    }
+    if (this.container.classList.remove("static"), this.container.style.position = "absolute", typeof t == "object" && "x" in t)
+      e.left = `${t.x}px`, e.top = `${t.y}px`;
+    else {
+      const o = "20px";
+      switch (t) {
+        case "top-left":
+          e.top = o, e.left = o;
+          break;
+        case "top-center":
+          e.top = o, e.left = "50%", e.transform = "translateX(-50%)";
+          break;
+        case "top-right":
+          e.top = o, e.right = o;
+          break;
+        case "bottom-left":
+          e.bottom = o, e.left = o;
+          break;
+        case "bottom-center":
+          e.bottom = o, e.left = "50%", e.transform = "translateX(-50%)";
+          break;
+        case "bottom-right":
+          e.bottom = o, e.right = o;
+          break;
+        case "left-center":
+          e.left = o, e.top = "50%", e.transform = "translateY(-50%)";
+          break;
+        case "right-center":
+          e.right = o, e.top = "50%", e.transform = "translateY(-50%)";
+          break;
+        case "center":
+          e.top = "50%", e.left = "50%", e.transform = "translate(-50%, -50%)";
+          break;
+      }
+    }
   }
   /**
-   * 应用样式配置到 CSS 变量
+   * 应用样式到容器
    */
   applyStyles() {
     const t = this.container.style;
-    this.options.backgroundColor && t.setProperty("--bim-toolbar-bg", this.options.backgroundColor), this.options.btnBackgroundColor && t.setProperty("--bim-btn-bg", this.options.btnBackgroundColor), this.options.btnHoverColor && t.setProperty("--bim-btn-hover-bg", this.options.btnHoverColor), this.options.btnActiveColor && t.setProperty("--bim-btn-active-bg", this.options.btnActiveColor), this.options.iconColor && t.setProperty("--bim-icon-color", this.options.iconColor), this.options.iconActiveColor && t.setProperty("--bim-icon-active-color", this.options.iconActiveColor), this.options.textColor && t.setProperty("--bim-btn-text-color", this.options.textColor), this.options.textActiveColor && t.setProperty("--bim-btn-text-active-color", this.options.textActiveColor);
+    this.options.backgroundColor && t.setProperty("--bim-btn-group-section-bg", this.options.backgroundColor), this.options.btnBackgroundColor && t.setProperty("--bim-btn-bg", this.options.btnBackgroundColor), this.options.btnHoverColor && t.setProperty("--bim-btn-hover-bg", this.options.btnHoverColor), this.options.btnActiveColor && t.setProperty("--bim-btn-active-bg", this.options.btnActiveColor), this.options.iconColor && t.setProperty("--bim-icon-color", this.options.iconColor), this.options.iconActiveColor && t.setProperty("--bim-icon-active-color", this.options.iconActiveColor), this.options.textColor && t.setProperty("--bim-btn-text-color", this.options.textColor), this.options.textActiveColor && t.setProperty("--bim-btn-text-active-color", this.options.textActiveColor);
   }
   /**
-   * 更新颜色配置
-   * @param colors 颜色配置对象
+   * 设置主题颜色
+   * 只会应用到没有被用户自定义的颜色属性上
+   */
+  setTheme(t) {
+    const e = {
+      backgroundColor: t.panelBackground,
+      btnBackgroundColor: t.componentBackground,
+      btnHoverColor: t.componentHover,
+      btnActiveColor: t.componentActive,
+      iconColor: t.icon,
+      iconActiveColor: t.iconActive,
+      textColor: t.textSecondary,
+      textActiveColor: t.textPrimary
+    };
+    Object.entries(e).forEach(([o, i]) => {
+      const s = o;
+      this.customColors.has(s) || (this.options[s] = i);
+    }), this.applyStyles();
+  }
+  /**
+   * 直接设置颜色（强制覆盖）
+   * 设置的颜色会被标记为自定义，后续的 setTheme 不会覆盖它们
    */
   setColors(t) {
-    this.options = { ...this.options, ...t }, this.applyStyles();
+    this.options = { ...this.options, ...t }, Object.keys(t).forEach((e) => {
+      this.customColors.add(e);
+    }), this.applyStyles();
   }
-  /**
-   * 添加按钮组
-   * @param groupId 组ID
-   * @param beforeGroupId 在哪个组之前插入（可选���，不传则插入到最后
-   */
-  addGroup(t, o) {
-    if (this.groups.some((i) => i.id === t)) {
-      console.warn("Group " + t + " already exists");
-      return;
-    }
-    const e = { id: t, buttons: [] };
-    if (o) {
-      const i = this.groups.findIndex((n) => n.id === o);
-      i !== -1 ? this.groups.splice(i, 0, e) : (console.warn(`Target group ${o} not found, appending ${t} to end.`), this.groups.push(e));
-    } else
-      this.groups.push(e);
+  async init() {
+    this.render(), this.unsubscribeLocale = p.subscribe(() => {
+      this.setLocales();
+    }), this.unsubscribeTheme = d.subscribe((t) => {
+      this.setTheme(t);
+    });
   }
-  /**
-   * 添加按钮到指定组
-   * @param config 按钮配置（必须包含 groupId，可选包含 parentId）
-   */
-  addButton(t) {
-    const { groupId: o, parentId: e } = t;
-    if (!o)
-      throw new Error(`Button ${t.id} config must contain 'groupId'`);
-    const i = this.groups.find((s) => s.id === o);
-    if (!i)
-      throw new Error(`Group ${o} not found. Please call addGroup first.`);
-    const n = {
-      ...t,
-      children: t.children || []
-    };
+  setLocales() {
+    this.render();
+  }
+  addGroup(t, e) {
+    if (this.groups.some((i) => i.id === t)) return;
+    const o = { id: t, buttons: [] };
     if (e) {
-      const s = this.findButton(i.buttons, e);
-      if (!s)
-        throw new Error(`Parent button ${e} not found in group ${o}`);
-      s.children || (s.children = []), s.children.push(n);
+      const i = this.groups.findIndex((s) => s.id === e);
+      i !== -1 ? this.groups.splice(i, 0, o) : this.groups.push(o);
     } else
-      i.buttons.push(n);
+      this.groups.push(o);
   }
-  /**
-   * 递归查找按钮
-   */
-  findButton(t, o) {
-    for (const e of t) {
-      if (e.id === o) return e;
-      if (e.children) {
-        const i = this.findButton(e.children, o);
+  addButton(t) {
+    const { groupId: e, parentId: o } = t, i = this.groups.find((n) => n.id === e);
+    if (!i) return;
+    const s = { ...t, children: t.children || [] };
+    if (o) {
+      const n = this.findButton(i.buttons, o);
+      n && (n.children || (n.children = []), n.children.push(s));
+    } else
+      i.buttons.push(s);
+  }
+  findButton(t, e) {
+    for (const o of t) {
+      if (o.id === e) return o;
+      if (o.children) {
+        const i = this.findButton(o.children, e);
         if (i) return i;
       }
     }
   }
-  /**
-   * 初始化组件，加载默认按钮配置
-   */
-  async init() {
-    const { homeButton: t } = await import("./index-CAJWny5G.mjs"), { locationButton: o } = await import("./index-C12x1apF.mjs"), { walkMenuButton: e } = await import("./index-Wpi9Br9A.mjs"), { walkPersonButton: i } = await import("./index-BXbORK0j.mjs"), { walkBirdButton: n } = await import("./index-Djlk5GIH.mjs"), { settingButton: s } = await import("./index-DsRG5l_h.mjs"), { infoButton: r } = await import("./index-DvZ5eiUH.mjs");
-    this.addGroup("group-1"), this.addButton(t), this.addButton(e), this.addButton(i), this.addButton(n), this.addButton(o), this.addGroup("group-2"), this.addButton(s), this.addButton(r), this.render();
-  }
-  /**
-   * 渲染整个工具栏
-   */
   render() {
-    this.container.innerHTML = "", this.btnRefs.clear();
-    const t = document.createElement("div");
-    t.className = "toolbar-container", this.groups.forEach((o, e) => {
-      const i = this.renderGroup(o, e, this.groups.length);
-      t.appendChild(i);
-    }), this.container.appendChild(t);
+    this.container.innerHTML = "", this.btnRefs.clear(), this.groups.forEach((t, e) => {
+      const o = this.renderGroup(t, e, this.groups.length);
+      this.container.appendChild(o);
+    });
   }
-  /**
-   * 渲染单个按钮组
-   */
-  renderGroup(t, o, e) {
+  renderGroup(t, e, o) {
     const i = document.createElement("div");
-    return i.className = "opt-btn-group", o < e - 1 && i.classList.add("has-divider"), t.buttons.forEach((n) => {
-      if (this.isVisible(n.id)) {
-        const s = this.renderButton(n);
-        i.appendChild(s);
+    return i.className = "bim-btn-group-section", e < o - 1 && i.classList.add("has-divider"), t.buttons.forEach((s) => {
+      if (this.isVisible(s.id)) {
+        const n = this.renderButton(s);
+        i.appendChild(n);
       }
     }), i;
   }
-  /**
-   * 渲染单个按钮
-   */
   renderButton(t) {
-    const o = document.createElement("div");
-    o.className = "opt-btn-wrapper";
     const e = document.createElement("div");
-    e.className = "opt-btn", this.activeBtnIds.has(t.id) && e.classList.add("active"), t.disabled && e.classList.add("disabled"), this.options.showLabel || (e.classList.add("no-label"), t.label && (e.title = t.label));
-    const i = document.createElement("div");
-    if (i.className = "opt-btn-icon", i.innerHTML = this.getIcon(t.icon), e.appendChild(i), this.options.showLabel && t.label) {
-      const n = document.createElement("span");
-      n.className = "opt-btn-label", n.textContent = t.label, e.appendChild(n);
+    e.className = "opt-btn-wrapper";
+    const o = document.createElement("div");
+    o.className = "opt-btn", (t.align || this.options.align || "vertical") === "horizontal" ? o.classList.add("align-horizontal") : o.classList.add("align-vertical"), this.activeBtnIds.has(t.id) && o.classList.add("active"), t.disabled && o.classList.add("disabled"), this.options.showLabel && t.label || o.classList.add("no-label");
+    const n = t.iconSize || 32, r = t.minWidth || 50;
+    o.style.minWidth = `${r}px`;
+    const a = document.createElement("div");
+    a.className = "opt-btn-icon", a.style.width = `${n}px`, a.style.height = `${n}px`, a.innerHTML = this.getIcon(t.icon), o.appendChild(a);
+    const l = document.createElement("div");
+    if (l.className = "opt-btn-text-wrapper", this.options.showLabel && t.label) {
+      const h = document.createElement("span");
+      h.className = "opt-btn-label", h.textContent = b(t.label), l.appendChild(h);
     }
     if (t.children && t.children.length > 0) {
-      const n = document.createElement("span");
-      n.className = "opt-btn-arrow", n.textContent = "▼", e.appendChild(n);
+      const h = document.createElement("span");
+      h.className = "opt-btn-arrow", h.textContent = "▼", l.appendChild(h);
     }
-    return e.addEventListener("click", () => this.handleClick(t)), e.addEventListener("mouseenter", () => this.handleMouseEnter(t, e)), e.addEventListener("mouseleave", () => this.handleMouseLeave()), this.btnRefs.set(t.id, e), o.appendChild(e), o;
+    return l.hasChildNodes() && o.appendChild(l), o.addEventListener("click", () => this.handleClick(t)), o.addEventListener("mouseenter", () => this.handleMouseEnter(t, o)), o.addEventListener("mouseleave", () => this.handleMouseLeave()), this.btnRefs.set(t.id, o), e.appendChild(o), e;
   }
-  /**
-   * 处理按钮点击事件
-   */
   handleClick(t) {
     t.disabled || (!t.children || t.children.length === 0) && (t.keepActive && (this.activeBtnIds.has(t.id) ? this.activeBtnIds.delete(t.id) : this.activeBtnIds.add(t.id), this.updateButtonState(t.id)), this.closeDropdown(), t.onClick && t.onClick(t));
   }
-  /**
-   * 处理子菜单项点击事件
-   */
-  handleSubClick(t) {
-    t.keepActive && (this.activeBtnIds.has(t.id) ? this.activeBtnIds.delete(t.id) : this.activeBtnIds.add(t.id), this.updateButtonState(t.id)), this.closeDropdown(), t.onClick && t.onClick(t);
+  handleMouseEnter(t, e) {
+    this.hoverTimeout && clearTimeout(this.hoverTimeout), t.children && t.children.length > 0 ? this.showDropdown(t, e) : this.closeDropdown();
   }
-  /**
-   * 处理鼠标移入事件（显示菜单）
-   */
-  handleMouseEnter(t, o) {
-    if (this.hoverTimeout && (clearTimeout(this.hoverTimeout), this.hoverTimeout = null), t.children && t.children.length > 0) {
-      this.showDropdown(t, o);
-      const e = o.querySelector(".opt-btn-arrow");
-      e && e.classList.add("rotated");
-    } else
-      this.closeDropdown();
-  }
-  /**
-   * 处理鼠标移出事件（隐藏菜单）
-   */
   handleMouseLeave() {
-    this.hoverTimeout = window.setTimeout(() => {
-      this.closeDropdown();
-    }, 200);
+    this.hoverTimeout = window.setTimeout(() => this.closeDropdown(), 200);
   }
-  /**
-   * 显示下拉菜单
-   */
-  showDropdown(t, o) {
+  showDropdown(t, e) {
     if (this.closeDropdown(), !t.children) return;
-    const e = document.createElement("div");
-    e.className = "opt-btn-dropdown";
-    const i = e.style;
-    this.options.backgroundColor && i.setProperty("--bim-toolbar-bg", this.options.backgroundColor), this.options.btnBackgroundColor && i.setProperty("--bim-btn-bg", this.options.btnBackgroundColor), this.options.btnHoverColor && i.setProperty("--bim-btn-hover-bg", this.options.btnHoverColor), this.options.btnActiveColor && i.setProperty("--bim-btn-active-bg", this.options.btnActiveColor), this.options.iconColor && i.setProperty("--bim-icon-color", this.options.iconColor), this.options.iconActiveColor && i.setProperty("--bim-icon-active-color", this.options.iconActiveColor), this.options.textColor && i.setProperty("--bim-btn-text-color", this.options.textColor), this.options.textActiveColor && i.setProperty("--bim-btn-text-active-color", this.options.textActiveColor);
-    const n = o.getBoundingClientRect(), s = n.left + n.width / 2;
-    e.style.top = n.top - 8 + "px", e.style.left = s + "px", t.children.forEach((r) => {
+    const o = document.createElement("div");
+    o.className = "opt-btn-dropdown", this.options.backgroundColor && o.style.setProperty("--bim-toolbar-bg", this.options.backgroundColor);
+    const i = e.getBoundingClientRect(), s = this.options.expand || "down";
+    this.options.direction === "row" ? o.style.flexDirection = "column" : o.style.flexDirection = "row", document.body.appendChild(o), t.children.forEach((r) => {
       if (this.isVisible(r.id)) {
         const a = this.renderDropdownItem(r);
-        e.appendChild(a);
+        o.appendChild(a);
       }
-    }), e.addEventListener("mouseenter", () => {
-      this.hoverTimeout && (clearTimeout(this.hoverTimeout), this.hoverTimeout = null);
-    }), e.addEventListener("mouseleave", () => this.handleMouseLeave()), document.body.appendChild(e), this.dropdownElement = e;
+    });
+    const n = o.getBoundingClientRect();
+    s === "up" ? (o.style.bottom = window.innerHeight - i.top + 8 + "px", o.style.left = i.left + (i.width - n.width) / 2 + "px") : s === "down" ? (o.style.top = i.bottom + 8 + "px", o.style.left = i.left + (i.width - n.width) / 2 + "px") : s === "right" ? (o.style.top = i.top + (i.height - n.height) / 2 + "px", o.style.left = i.right + 8 + "px") : s === "left" && (o.style.top = i.top + (i.height - n.height) / 2 + "px", o.style.right = window.innerWidth - i.left + 8 + "px"), o.addEventListener("mouseenter", () => {
+      this.hoverTimeout && clearTimeout(this.hoverTimeout);
+    }), o.addEventListener("mouseleave", () => this.handleMouseLeave()), this.dropdownElement = o;
   }
-  /**
-   * 渲染下拉菜单项
-   */
   renderDropdownItem(t) {
-    const o = document.createElement("div");
-    o.className = "opt-btn-dropdown-item";
     const e = document.createElement("div");
-    if (e.className = "opt-btn-icon small", e.innerHTML = this.getIcon(t.icon), o.appendChild(e), this.options.showLabel) {
-      const i = document.createElement("span");
-      i.textContent = t.label, o.appendChild(i);
+    e.className = "opt-btn-dropdown-item", (t.align || "horizontal") === "horizontal" ? e.classList.add("align-horizontal") : e.classList.add("align-vertical");
+    const i = t.iconSize || 32, s = t.minWidth;
+    s && (e.style.minWidth = `${s}px`);
+    const n = document.createElement("div");
+    if (n.className = "opt-btn-icon", n.style.width = `${i}px`, n.style.height = `${i}px`, n.innerHTML = this.getIcon(t.icon), e.appendChild(n), this.options.showLabel && t.label) {
+      const r = document.createElement("span");
+      r.className = "opt-btn-dropdown-label", r.textContent = b(t.label), e.appendChild(r);
     }
-    return o.addEventListener("click", (i) => {
-      i.stopPropagation(), this.handleSubClick(t);
-    }), o;
+    return e.addEventListener("click", (r) => {
+      r.stopPropagation(), this.handleClick(t);
+    }), e;
   }
-  /**
-   * 关闭所有下拉菜单
-   */
   closeDropdown() {
     this.dropdownElement && (this.dropdownElement.remove(), this.dropdownElement = null), this.btnRefs.forEach((t) => {
-      const o = t.querySelector(".opt-btn-arrow");
-      o && o.classList.remove("rotated");
+      const e = t.querySelector(".opt-btn-arrow");
+      e && e.classList.remove("rotated");
     });
   }
-  /**
-   * 更新按钮的激活状态样式
-   */
   updateButtonState(t) {
-    const o = this.btnRefs.get(t);
-    o && (this.activeBtnIds.has(t) ? o.classList.add("active") : o.classList.remove("active"));
+    const e = this.btnRefs.get(t);
+    e && (this.activeBtnIds.has(t) ? e.classList.add("active") : e.classList.remove("active"));
   }
-  /**
-   * 获取图标 SVG 字符串
-   */
   getIcon(t) {
     return t || this.DEFAULT_ICON;
   }
-  /**
-   * 更新按钮可见性
-   * @param buttonId 按钮ID
-   * @param visible 是否可见
-   */
-  updateButtonVisibility(t, o) {
-    this.options.visibility || (this.options.visibility = {}), this.options.visibility[t] = o, this.render();
+  updateButtonVisibility(t, e) {
+    this.options.visibility || (this.options.visibility = {}), this.options.visibility[t] = e, this.render();
   }
-  /**
-   * 设置是否显示标签
-   * @param show 是否显示
-   */
   setShowLabel(t) {
-    this.options.showLabel = t, this.render();
+    this.options.showLabel = t, this.updateLabelsVisibility();
   }
-  /**
-   * 设置背景颜色 (兼容旧接口)
-   * @param color CSS 颜色值
-   */
+  updateLabelsVisibility() {
+    this.btnRefs.forEach((t, e) => {
+      const o = this.findButtonById(e);
+      if (!o) return;
+      this.options.showLabel && o.label ? t.classList.remove("no-label") : t.classList.add("no-label");
+    });
+  }
+  findButtonById(t) {
+    for (const e of this.groups) {
+      const o = this.findButton(e.buttons, t);
+      if (o) return o;
+    }
+  }
   setBackgroundColor(t) {
     this.setColors({ backgroundColor: t });
   }
-  /**
-   * 检查按钮是否可见
-   */
   isVisible(t) {
     return this.options.visibility?.[t] !== !1;
   }
-  /**
-   * 销毁组件，清理资源
-   */
   destroy() {
-    this.closeDropdown(), this.hoverTimeout && clearTimeout(this.hoverTimeout), this.container.innerHTML = "", this.btnRefs.clear(), this.activeBtnIds.clear(), this.groups = [];
+    this.unsubscribeLocale && (this.unsubscribeLocale(), this.unsubscribeLocale = null), this.unsubscribeTheme && (this.unsubscribeTheme(), this.unsubscribeTheme = null), this.closeDropdown(), this.container.innerHTML = "", this.btnRefs.clear();
   }
 }
-class g {
-  /** 内部工具栏组件实例 */
-  optBtnGroups = null;
-  /** 工具栏挂载的容器 */
-  container;
+class B extends v {
   /**
-   * 构造函数
-   * @param container 工具栏挂载的容器元素
+   * 重写初始化，加载默认按钮
    */
+  async init() {
+    await super.init();
+    const { homeButton: t } = await import("./index-CAPOUzfO.mjs"), { locationButton: e } = await import("./index-Cadgm6mg.mjs"), { walkMenuButton: o } = await import("./index-BzDQeHxh.mjs"), { walkPersonButton: i } = await import("./index-CIgUZcJM.mjs"), { walkBirdButton: s } = await import("./index-psziCat8.mjs"), { settingButton: n } = await import("./index-DSz8VpYf.mjs"), { infoButton: r } = await import("./index-C4v-Lg_Y.mjs");
+    this.addGroup("group-1"), this.addButton(t), this.addButton(o), this.addButton(i), this.addButton(s), this.addButton(e), this.addGroup("group-2"), this.addButton(n), this.addButton(r), this.render();
+  }
+}
+class k {
+  toolbar = null;
+  toolbarContainer = null;
+  container;
   constructor(t) {
     this.container = t, this.init();
   }
-  /**
-   * 初始化工具栏
-   */
   init() {
-    this.optBtnGroups = new f({
-      container: this.container,
-      showLabel: !0
-    }), this.optBtnGroups.init().catch((t) => {
-      console.error("Failed to initialize OptBtnGroups:", t);
-    });
+    this.toolbarContainer = document.createElement("div"), this.toolbarContainer.id = "opt-btn-groups", this.toolbarContainer.className = "bim-engine-opt-btn-container is-bottom-toolbar", this.container.appendChild(this.toolbarContainer), this.toolbar = new B({
+      container: this.toolbarContainer,
+      showLabel: !0,
+      direction: "row",
+      position: "bottom-center",
+      // 底部居中
+      align: "vertical",
+      // 图标在上
+      expand: "up"
+      // 向上展开
+    }), this.toolbar.init();
   }
-  /**
-   * 添加一个工具栏按钮组
-   * @param groupId 新组的 ID
-   * @param beforeGroupId (可选) 插入到哪个组之前，不传则追加到最后
-   */
-  addGroup(t, o) {
-    this.optBtnGroups ? (this.optBtnGroups.addGroup(t, o), this.optBtnGroups.render()) : console.warn("Toolbar not initialized yet.");
+  updateTheme(t) {
+    this.toolbar?.setTheme(t);
   }
-  /**
-   * 添加一个工具栏按钮
-   * @param config 按钮配置对象
-   */
-  addButton(t) {
-    this.optBtnGroups ? (this.optBtnGroups.addButton(t), this.optBtnGroups.render()) : console.warn("Toolbar not initialized yet.");
+  refresh() {
+    this.toolbar?.render();
   }
-  /**
-   * 设置按钮的可见性
-   * @param buttonId 按钮 ID
-   * @param visible 是否可见
-   */
-  setButtonVisibility(t, o) {
-    this.optBtnGroups ? this.optBtnGroups.updateButtonVisibility(t, o) : console.warn("Toolbar not initialized yet.");
-  }
-  /**
-   * 设置是否显示按钮下方的文字标签
-   * @param show 是否显示
-   */
-  setShowLabel(t) {
-    this.optBtnGroups ? this.optBtnGroups.setShowLabel(t) : console.warn("Toolbar not initialized yet.");
-  }
-  /**
-   * 设置整个工具栏的可见性
-   * @param visible 是否可见
-   */
-  setVisible(t) {
-    this.container.style.display = t ? "block" : "none";
-  }
-  /**
-   * 设置工具栏背景颜色
-   * @param color CSS 颜色值
-   */
-  setBackgroundColor(t) {
-    this.optBtnGroups ? this.optBtnGroups.setBackgroundColor(t) : console.warn("Toolbar not initialized yet.");
-  }
-  /**
-   * 设置工具栏详细颜色配置
-   * @param colors 颜色配置对象
-   */
-  setColors(t) {
-    this.optBtnGroups ? this.optBtnGroups.setColors(t) : console.warn("Toolbar not initialized yet.");
-  }
-  /**
-   * 销毁工具栏管理器
-   */
   destroy() {
-    this.optBtnGroups && (this.optBtnGroups.destroy(), this.optBtnGroups = null);
+    this.toolbar?.destroy(), this.toolbar = null;
+  }
+  // --- 转发 API ---
+  addGroup(t, e) {
+    this.toolbar?.addGroup(t, e), this.toolbar?.render();
+  }
+  addButton(t) {
+    this.toolbar?.addButton(t), this.toolbar?.render();
+  }
+  setButtonVisibility(t, e) {
+    this.toolbar?.updateButtonVisibility(t, e);
+  }
+  setShowLabel(t) {
+    this.toolbar?.setShowLabel(t);
+  }
+  setVisible(t) {
+    this.toolbarContainer && (this.toolbarContainer.style.visibility = t ? "visible" : "hidden");
+  }
+  setBackgroundColor(t) {
+    this.toolbar?.setBackgroundColor(t);
+  }
+  setColors(t) {
+    this.toolbar?.setColors(t);
   }
 }
-class u {
+class M {
+  activeGroups = [];
+  container;
+  constructor(t) {
+    this.container = t;
+  }
+  /**
+   * 创建一个新的按钮组
+   */
+  create(t) {
+    const e = document.createElement("div");
+    this.container.appendChild(e);
+    const o = new v({
+      container: e,
+      ...t
+    });
+    return o.init(), this.activeGroups.push(o), o;
+  }
+  updateTheme(t) {
+    this.activeGroups.forEach((e) => e.setTheme(t));
+  }
+  refresh() {
+    this.activeGroups.forEach((t) => t.render());
+  }
+  destroy() {
+    this.activeGroups.forEach((t) => t.destroy()), this.activeGroups = [];
+  }
+}
+class y {
   element;
   options;
   container;
   header;
   contentArea;
   _isDestroyed = !1;
+  _isInitialized = !1;
+  unsubscribeTheme = null;
+  unsubscribeLocale = null;
   /**
    * 构造函数
    * @param options 弹窗配置选项
@@ -378,21 +593,45 @@ class u {
     }, this.container = t.container, this.element = this.createDom(), this.header = this.element.querySelector(".bim-dialog-header"), this.contentArea = this.element.querySelector(".bim-dialog-content"), this.init();
   }
   /**
+   * 设置主题
+   * @param theme 全局主题配置
+   */
+  setTheme(t) {
+    const e = this.element.style;
+    this.options.backgroundColor || e.setProperty("--bim-dialog-bg", t.panelBackground), this.options.headerBackgroundColor || e.setProperty("--bim-dialog-header-bg", t.componentHover), this.options.titleColor || e.setProperty("--bim-dialog-title-color", t.textPrimary), this.options.textColor || e.setProperty("--bim-dialog-text-color", t.textPrimary), this.options.borderColor || e.setProperty("--bim-dialog-border-color", t.border);
+  }
+  /**
+   * 初始化组件功能 (接口实现)
+   */
+  init() {
+    this._isInitialized || (this.container.appendChild(this.element), this.initPosition(), this.options.draggable && this.initDrag(), this.options.resizable && this.initResize(), this._isInitialized = !0, this.options.onOpen && this.options.onOpen(), this.unsubscribeTheme = d.subscribe((t) => {
+      this.setTheme(t);
+    }), this.unsubscribeLocale = p.subscribe(() => {
+      this.setLocales();
+    }));
+  }
+  setLocales() {
+    if (this.options.title) {
+      const t = this.header.querySelector(".bim-dialog-title");
+      t && (t.textContent = b(this.options.title));
+    }
+  }
+  /**
    * 创建弹窗的 DOM 结构
    */
   createDom() {
     const t = document.createElement("div");
     t.className = "bim-dialog", this.options.id && (t.id = this.options.id);
-    const o = t.style;
-    this.options.backgroundColor && o.setProperty("--bim-dialog-bg", this.options.backgroundColor), this.options.headerBackgroundColor && o.setProperty("--bim-dialog-header-bg", this.options.headerBackgroundColor), this.options.titleColor && o.setProperty("--bim-dialog-title-color", this.options.titleColor), this.options.textColor && o.setProperty("--bim-dialog-text-color", this.options.textColor), this.options.borderColor && o.setProperty("--bim-dialog-border-color", this.options.borderColor), this.setSize(t, this.options.width, this.options.height);
-    const e = document.createElement("div");
-    e.className = "bim-dialog-header", this.options.draggable && e.classList.add("draggable");
+    const e = t.style;
+    this.options.backgroundColor && e.setProperty("--bim-dialog-bg", this.options.backgroundColor), this.options.headerBackgroundColor && e.setProperty("--bim-dialog-header-bg", this.options.headerBackgroundColor), this.options.titleColor && e.setProperty("--bim-dialog-title-color", this.options.titleColor), this.options.textColor && e.setProperty("--bim-dialog-text-color", this.options.textColor), this.options.borderColor && e.setProperty("--bim-dialog-border-color", this.options.borderColor), this.setSize(t, this.options.width, this.options.height);
+    const o = document.createElement("div");
+    o.className = "bim-dialog-header", this.options.draggable && o.classList.add("draggable");
     const i = document.createElement("span");
-    i.className = "bim-dialog-title", i.textContent = this.options.title || "";
-    const n = document.createElement("span");
-    n.className = "bim-dialog-close", n.innerHTML = "&times;", n.onclick = () => this.close(), e.appendChild(i), e.appendChild(n);
-    const s = document.createElement("div");
-    if (s.className = "bim-dialog-content", typeof this.options.content == "string" ? s.innerHTML = this.options.content : this.options.content instanceof HTMLElement && s.appendChild(this.options.content), t.appendChild(e), t.appendChild(s), this.options.resizable) {
+    i.className = "bim-dialog-title", i.textContent = this.options.title ? b(this.options.title) : "";
+    const s = document.createElement("span");
+    s.className = "bim-dialog-close", s.innerHTML = "&times;", s.onclick = () => this.close(), o.appendChild(i), o.appendChild(s);
+    const n = document.createElement("div");
+    if (n.className = "bim-dialog-content", typeof this.options.content == "string" ? n.innerHTML = this.options.content : this.options.content instanceof HTMLElement && n.appendChild(this.options.content), t.appendChild(o), t.appendChild(n), this.options.resizable) {
       const r = document.createElement("div");
       r.className = "bim-dialog-resize-handle", t.appendChild(r);
     }
@@ -401,74 +640,68 @@ class u {
   /**
    * 设置元素尺寸
    */
-  setSize(t, o, e) {
-    o !== void 0 && (t.style.width = typeof o == "number" ? `${o}px` : o), e !== void 0 && (t.style.height = typeof e == "number" ? `${e}px` : e);
-  }
-  /**
-   * 初始化组件功能
-   */
-  init() {
-    this.container.appendChild(this.element), this.initPosition(), this.options.draggable && this.initDrag(), this.options.resizable && this.initResize();
+  setSize(t, e, o) {
+    e !== void 0 && (t.style.width = typeof e == "number" ? `${e}px` : e), o !== void 0 && (t.style.height = typeof o == "number" ? `${o}px` : o);
   }
   /**
    * 初始化弹窗位置
    */
   initPosition() {
-    const t = this.options.position, o = this.element.getBoundingClientRect();
-    let e = 0, i = 0;
-    const n = this.container.clientWidth, s = this.container.clientHeight, r = o.width, a = o.height;
+    const t = this.options.position, e = this.element.getBoundingClientRect();
+    let o = 0, i = 0;
+    const s = this.container.clientWidth, n = this.container.clientHeight, r = e.width, a = e.height;
     if (typeof t == "object" && "x" in t)
-      e = t.x, i = t.y;
+      o = t.x, i = t.y;
     else
       switch (t) {
         case "center":
-          e = (n - r) / 2, i = (s - a) / 2;
+          o = (s - r) / 2, i = (n - a) / 2;
           break;
         case "top-left":
-          e = 0, i = 0;
+          o = 0, i = 0;
           break;
         case "top-center":
-          e = (n - r) / 2, i = 0;
+          o = (s - r) / 2, i = 0;
           break;
         case "top-right":
-          e = n - r, i = 0;
+          o = s - r, i = 0;
           break;
         case "left-center":
-          e = 0, i = (s - a) / 2;
+          o = 0, i = (n - a) / 2;
           break;
         case "right-center":
-          e = n - r, i = (s - a) / 2;
+          o = s - r, i = (n - a) / 2;
           break;
         case "bottom-left":
-          e = 0, i = s - a;
+          o = 0, i = n - a;
           break;
         case "bottom-center":
-          e = (n - r) / 2, i = s - a;
+          o = (s - r) / 2, i = n - a;
           break;
         case "bottom-right":
-          e = n - r, i = s - a;
+          o = s - r, i = n - a;
           break;
         default:
-          e = (n - r) / 2, i = (s - a) / 2;
+          o = (s - r) / 2, i = (n - a) / 2;
       }
-    e = Math.max(0, Math.min(e, n - r)), i = Math.max(0, Math.min(i, s - a)), this.element.style.left = `${e}px`, this.element.style.top = `${i}px`;
+    o = Math.max(0, Math.min(o, s - r)), i = Math.max(0, Math.min(i, n - a)), this.element.style.left = `${o}px`, this.element.style.top = `${i}px`;
   }
   /**
    * 初始化拖拽功能
    */
   initDrag() {
-    let t = 0, o = 0, e = 0, i = 0;
-    const n = (a) => {
-      a.preventDefault(), t = a.clientX, o = a.clientY, e = this.element.offsetLeft, i = this.element.offsetTop, document.addEventListener("mousemove", s), document.addEventListener("mouseup", r);
-    }, s = (a) => {
-      const l = a.clientX - t, p = a.clientY - o;
-      let d = e + l, h = i + p;
-      const m = this.container.clientWidth - this.element.offsetWidth, b = this.container.clientHeight - this.element.offsetHeight;
-      d = Math.max(0, Math.min(d, m)), h = Math.max(0, Math.min(h, b)), this.element.style.left = `${d}px`, this.element.style.top = `${h}px`;
+    let t = 0, e = 0, o = 0, i = 0;
+    const s = (a) => {
+      a.preventDefault(), t = a.clientX, e = a.clientY, o = this.element.offsetLeft, i = this.element.offsetTop, document.addEventListener("mousemove", n), document.addEventListener("mouseup", r);
+    }, n = (a) => {
+      const l = a.clientX - t, h = a.clientY - e;
+      let u = o + l, m = i + h;
+      const f = this.container.clientWidth - this.element.offsetWidth, C = this.container.clientHeight - this.element.offsetHeight;
+      u = Math.max(0, Math.min(u, f)), m = Math.max(0, Math.min(m, C)), this.element.style.left = `${u}px`, this.element.style.top = `${m}px`;
     }, r = () => {
-      document.removeEventListener("mousemove", s), document.removeEventListener("mouseup", r);
+      document.removeEventListener("mousemove", n), document.removeEventListener("mouseup", r);
     };
-    this.header.addEventListener("mousedown", n);
+    this.header.addEventListener("mousedown", s);
   }
   /**
    * 初始化缩放功能
@@ -476,16 +709,16 @@ class u {
   initResize() {
     const t = this.element.querySelector(".bim-dialog-resize-handle");
     if (!t) return;
-    let o = 0, e = 0, i = 0, n = 0;
-    const s = (l) => {
-      l.preventDefault(), l.stopPropagation(), o = l.clientX, e = l.clientY, i = this.element.offsetWidth, n = this.element.offsetHeight, document.addEventListener("mousemove", r), document.addEventListener("mouseup", a);
+    let e = 0, o = 0, i = 0, s = 0;
+    const n = (l) => {
+      l.preventDefault(), l.stopPropagation(), e = l.clientX, o = l.clientY, i = this.element.offsetWidth, s = this.element.offsetHeight, document.addEventListener("mousemove", r), document.addEventListener("mouseup", a);
     }, r = (l) => {
-      const p = l.clientX - o, d = l.clientY - e, h = Math.max(this.options.minWidth || 100, i + p), m = Math.max(this.options.minHeight || 50, n + d);
-      this.element.style.width = `${h}px`, this.element.style.height = `${m}px`;
+      const h = l.clientX - e, u = l.clientY - o, m = Math.max(this.options.minWidth || 100, i + h), f = Math.max(this.options.minHeight || 50, s + u);
+      this.element.style.width = `${m}px`, this.element.style.height = `${f}px`;
     }, a = () => {
       document.removeEventListener("mousemove", r), document.removeEventListener("mouseup", a);
     };
-    t.addEventListener("mousedown", s);
+    t.addEventListener("mousedown", n);
   }
   /**
    * 动态设置内容
@@ -498,20 +731,25 @@ class u {
    * 关闭弹窗并销毁
    */
   close() {
-    this._isDestroyed || (this.element.remove(), this._isDestroyed = !0, this.options.onClose && this.options.onClose());
+    this._isDestroyed || (this.unsubscribeTheme && (this.unsubscribeTheme(), this.unsubscribeTheme = null), this.unsubscribeLocale && (this.unsubscribeLocale(), this.unsubscribeLocale = null), this.element.remove(), this._isDestroyed = !0, this.options.onClose && this.options.onClose());
+  }
+  /**
+   * 销毁组件 (接口实现)
+   */
+  destroy() {
+    this.close();
   }
 }
-class v {
-  dialog;
+class D extends y {
   /**
    * 构造函数
    * @param container 父容器
    */
   constructor(t) {
-    const o = document.createElement("div");
-    o.className = "bim-info-dialog-content";
-    const e = document.createElement("h3");
-    e.textContent = "Model Information";
+    const e = document.createElement("div");
+    e.className = "bim-info-dialog-content";
+    const o = document.createElement("h3");
+    o.textContent = "Model Information";
     const i = document.createElement("ul");
     i.innerHTML = `
             <li><strong>Name:</strong> Sample Project</li>
@@ -519,30 +757,35 @@ class v {
             <li><strong>Date:</strong> ${(/* @__PURE__ */ new Date()).toLocaleDateString()}</li>
             <li><strong>Status:</strong> <span style="color: green;">Active</span></li>
         `;
-    const n = document.createElement("button");
-    n.textContent = "Update Status", n.style.marginTop = "10px", n.onclick = () => {
+    const s = document.createElement("button");
+    s.textContent = "Update Status", s.style.marginTop = "10px", s.onclick = () => {
       alert("Status updated!");
-    }, o.appendChild(e), o.appendChild(i), o.appendChild(n), this.dialog = new u({
+    }, e.appendChild(o), e.appendChild(i), e.appendChild(s), super({
       container: t,
-      title: "Project Info (Wrapped)",
-      content: o,
+      title: "dialog.testTitle",
+      content: e,
       width: 320,
       height: "auto",
       position: "center",
       resizable: !0,
-      draggable: !0
+      draggable: !0,
+      // 可以在这里添加特定的 onClose 逻辑
+      onClose: () => {
+        console.log("Info dialog closed");
+      },
+      onOpen: () => {
+        console.log("Info dialog opened");
+      }
     });
   }
-  /**
-   * 关闭弹窗
-   */
-  close() {
-    this.dialog.close();
-  }
+  // 不需要再手动实现 setTheme, destroy, close, init
+  // 它们都已从 BimDialog 继承
 }
-class w {
+class H {
   /** 弹窗挂载的父容器 */
   container;
+  /** 活跃的弹窗实例列表 */
+  activeDialogs = [];
   /**
    * 构造函数
    * @param container 弹窗挂载的目标容器
@@ -556,76 +799,102 @@ class w {
    * @returns BimDialog 实例
    */
   create(t) {
-    return new u({
+    const e = new y({
       container: this.container,
-      ...t
+      ...t,
+      onClose: () => {
+        this.activeDialogs = this.activeDialogs.filter((o) => o !== e), t.onClose && t.onClose();
+      }
     });
+    return e.setTheme(d.getTheme()), this.activeDialogs.push(e), e;
   }
   /**
    * 显示二次封装的模型信息弹窗
    * 演示如何调用特定的业务弹窗组件
    */
   showInfoDialog() {
-    new v(this.container);
+    new D(this.container);
+  }
+  /**
+   * 响应全局主题变更
+   * @param theme 全局主题配置
+   */
+  updateTheme(t) {
+    this.activeDialogs.forEach((e) => {
+      e.setTheme && e.setTheme(t);
+    });
   }
 }
-class C {
-  /** 主容器元素 */
+class P {
   container;
-  /** 内部包装器元素，用于承载所有 UI 组件 */
   wrapper = null;
-  /** 工具栏管理器实例 */
+  topLeftGroup = null;
+  // 保存左上角按钮组的引用
   toolbar = null;
-  /** 弹窗管理器实例 */
+  // 底部专用
+  buttonGroup = null;
+  // 通用
   dialog = null;
-  /**
-   * 构造函数
-   * @param container 容器元素或容器 ID
-   */
-  constructor(t) {
+  get localeManager() {
+    return p;
+  }
+  get themeManager() {
+    return d;
+  }
+  constructor(t, e) {
     const o = typeof t == "string" ? document.getElementById(t) : t;
     if (!o) throw new Error("Container not found");
-    this.container = o, this.init();
+    this.container = o, e?.locale && p.setLocale(e.locale), e?.theme && (e.theme === "custom" ? console.warn("Custom theme should be set via setCustomTheme().") : d.setTheme(e.theme)), this.init();
   }
-  /**
-   * 初始化方法
-   * 创建 DOM 结构并初始化各子模块
-   */
+  setLocale(t) {
+    p.setLocale(t);
+  }
+  getLocale() {
+    return p.getLocale();
+  }
+  setTheme(t) {
+    d.setTheme(t);
+  }
+  setCustomTheme(t) {
+    d.setCustomTheme(t);
+  }
   init() {
-    this.container.innerHTML = "", this.wrapper = document.createElement("div"), this.wrapper.className = "bim-engine-wrapper";
-    const t = document.createElement("h1");
-    t.textContent = "BimEngine", t.className = "bim-engine-title";
-    const o = document.createElement("p");
-    o.textContent = "这是一个使用BIM-ENGINE。", o.className = "bim-engine-desc";
-    const e = document.createElement("div");
-    e.id = "opt-btn-groups", e.className = "bim-engine-opt-btn-container", this.wrapper.appendChild(t), this.wrapper.appendChild(o), this.dialog = new w(this.wrapper), this.toolbar = new g(e);
-    const i = document.createElement("button");
-    i.textContent = "打开测试弹窗", i.className = "bim-engine-btn", i.onclick = () => {
-      this.dialog?.create({
-        title: "测试弹窗",
-        content: '<div style="padding: 10px;">这是一个 <b>可拖拽</b> 且 <b>可缩放</b> 的弹窗。<br><br>你可以尝试拖动标题栏，或者拖动右下角改变大小。</div>',
-        width: 300,
-        height: 400,
-        position: "top-left",
-        draggable: !0,
-        resizable: !0
-      });
-    };
-    const n = document.createElement("button");
-    n.textContent = "打开信息弹窗 (封装版)", n.className = "bim-engine-btn", n.style.marginLeft = "10px", n.onclick = () => {
-      this.dialog?.showInfoDialog();
-    }, this.wrapper.appendChild(i), this.wrapper.appendChild(n), this.wrapper.appendChild(e), this.container.appendChild(this.wrapper);
+    this.container.innerHTML = "", this.wrapper = document.createElement("div"), this.wrapper.className = "bim-engine-wrapper", this.container.appendChild(this.wrapper), this.dialog = new H(this.wrapper), this.toolbar = new k(this.wrapper), this.buttonGroup = new M(this.wrapper), this.createTopLeftGroup(), this.updateTheme(d.getTheme()), this.topLeftGroup && this.topLeftGroup.setColors({
+      backgroundColor: "#ff00ff"
+    }), d.subscribe((t) => {
+      this.updateTheme(t);
+    });
   }
-  /**
-   * 销毁实例
-   * 清理所有资源和 DOM 元素
-   */
+  createTopLeftGroup() {
+    this.buttonGroup && (this.topLeftGroup = this.buttonGroup.create({
+      position: "top-left",
+      direction: "column",
+      align: "vertical",
+      backgroundColor: "#ff00ff",
+      // 自定义背景色，不会被主题覆盖
+      showLabel: !1
+    }), this.topLeftGroup.addGroup("main"), this.topLeftGroup.addButton({
+      id: "menu-btn",
+      groupId: "main",
+      type: "button",
+      label: "Menu",
+      // 应该用 translation key
+      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>',
+      onClick: () => {
+        alert("点击按钮");
+      }
+    }), this.topLeftGroup.render());
+  }
+  updateTheme(t) {
+    this.wrapper && (this.wrapper.style.backgroundColor = t.background, this.wrapper.style.color = t.textPrimary);
+  }
   destroy() {
-    this.toolbar && (this.toolbar.destroy(), this.toolbar = null), this.dialog = null, this.container.innerHTML = "";
+    this.toolbar?.destroy(), this.buttonGroup?.destroy(), this.dialog = null, this.container.innerHTML = "";
   }
 }
 export {
-  C as BimEngine,
-  f as OptBtnGroups
+  v as BimButtonGroup,
+  P as BimEngine,
+  B as Toolbar
 };
 //# sourceMappingURL=bim-engine-sdk.es.js.map

@@ -1,19 +1,89 @@
 /**
+ * 通用按钮组组件 (BimButtonGroup)
+ */
+export declare class BimButtonGroup implements IBimComponent {
+    private container;
+    private options;
+    private groups;
+    private activeBtnIds;
+    private btnRefs;
+    private dropdownElement;
+    private hoverTimeout;
+    private customColors;
+    private unsubscribeLocale;
+    private unsubscribeTheme;
+    private readonly DEFAULT_ICON;
+    constructor(options: ButtonGroupOptions);
+    private initContainer;
+    private updatePosition;
+    /**
+     * 应用样式到容器
+     */
+    private applyStyles;
+    /**
+     * 设置主题颜色
+     * 只会应用到没有被用户自定义的颜色属性上
+     */
+    setTheme(theme: ThemeConfig): void;
+    /**
+     * 直接设置颜色（强制覆盖）
+     * 设置的颜色会被标记为自定义，后续的 setTheme 不会覆盖它们
+     */
+    setColors(colors: ButtonGroupColors): void;
+    init(): Promise<void>;
+    setLocales(): void;
+    addGroup(groupId: string, beforeGroupId?: string): void;
+    addButton(config: ButtonConfig): void;
+    private findButton;
+    render(): void;
+    private renderGroup;
+    private renderButton;
+    private handleClick;
+    private handleMouseEnter;
+    private handleMouseLeave;
+    private showDropdown;
+    private renderDropdownItem;
+    private closeDropdown;
+    private updateButtonState;
+    private getIcon;
+    updateButtonVisibility(id: string, visible: boolean): void;
+    setShowLabel(show: boolean): void;
+    private updateLabelsVisibility;
+    private findButtonById;
+    setBackgroundColor(color: string): void;
+    private isVisible;
+    destroy(): void;
+}
+
+/**
  * 通用弹窗组件类
  * 支持拖拽、缩放、自定义内容和位置。
  */
-declare class BimDialog {
+declare class BimDialog implements IBimComponent {
     private element;
     private options;
     private container;
     private header;
     private contentArea;
     private _isDestroyed;
+    private _isInitialized;
+    private unsubscribeTheme;
+    private unsubscribeLocale;
     /**
      * 构造函数
      * @param options 弹窗配置选项
      */
     constructor(options: DialogOptions);
+    /**
+     * 设置主题
+     * @param theme 全局主题配置
+     */
+    setTheme(theme: ThemeConfig): void;
+    /**
+     * 初始化组件功能 (接口实现)
+     */
+    init(): void;
+    setLocales(): void;
     /**
      * 创建弹窗的 DOM 结构
      */
@@ -22,10 +92,6 @@ declare class BimDialog {
      * 设置元素尺寸
      */
     private setSize;
-    /**
-     * 初始化组件功能
-     */
-    private init;
     /**
      * 初始化弹窗位置
      */
@@ -47,85 +113,111 @@ declare class BimDialog {
      * 关闭弹窗并销毁
      */
     close(): void;
-}
-
-/**
- * BimEngine 主类
- * 负责初始化整个应用界面，协调各个子模块（如工具栏、弹窗等）。
- */
-export declare class BimEngine {
-    /** 主容器元素 */
-    private container;
-    /** 内部包装器元素，用于承载所有 UI 组件 */
-    private wrapper;
-    /** 工具栏管理器实例 */
-    toolbar: ToolbarManager | null;
-    /** 弹窗管理器实例 */
-    dialog: DialogManager | null;
     /**
-     * 构造函数
-     * @param container 容器元素或容器 ID
-     */
-    constructor(container: HTMLElement | string);
-    /**
-     * 初始化方法
-     * 创建 DOM 结构并初始化各子模块
-     */
-    private init;
-    /**
-     * 销毁实例
-     * 清理所有资源和 DOM 元素
+     * 销毁组件 (接口实现)
      */
     destroy(): void;
 }
 
-/**
- * 按钮配置接口（用于外部定义按钮）
- */
+export declare class BimEngine {
+    private container;
+    private wrapper;
+    private topLeftGroup;
+    toolbar: ToolbarManager | null;
+    buttonGroup: ButtonGroupManager | null;
+    dialog: DialogManager | null;
+    get localeManager(): LocaleManager;
+    get themeManager(): ThemeManager;
+    constructor(container: HTMLElement | string, options?: {
+        locale?: LocaleType;
+        theme?: ThemeType;
+    });
+    setLocale(locale: LocaleType): void;
+    getLocale(): LocaleType;
+    setTheme(theme: 'dark' | 'light'): void;
+    setCustomTheme(theme: ThemeConfig): void;
+    private init;
+    private createTopLeftGroup;
+    private updateTheme;
+    destroy(): void;
+}
+
+/** 按钮内部文字图标排列 */
+declare type ButtonAlign = 'vertical' | 'horizontal';
+
+/** 按钮配置 */
 declare interface ButtonConfig {
-    /** 唯一标识 */
     id: string;
-    /** 按钮类型：普通按钮或菜单按钮 */
     type: ButtonType;
-    /** 按钮显示文字 */
     label: string;
-    /** SVG 图标（内联 SVG 字符串） */
     icon?: string;
-    /** 是否保持激活状态（默认 false） */
     keepActive?: boolean;
-    /** 是否禁用 */
     disabled?: boolean;
-    /** 点击回调函数 */
     onClick?: (button: OptButton) => void;
-    /** 子按钮配置（可选，用于菜单按钮） */
     children?: ButtonConfig[];
-    /** 所属组ID */
     groupId?: string;
-    /** 父按钮ID（如果是子按钮，则必填） */
     parentId?: string;
+    /** 按钮内部图标文字排列 (默认 vertical，即图标在上) */
+    align?: ButtonAlign;
+    /** 图标大小 (正方形，单位 px，默认 32) */
+    iconSize?: number;
+    /** 按钮最小宽度 (单位 px，默认 50) */
+    minWidth?: number;
+}
+
+export declare interface ButtonGroup {
+    id: string;
+    buttons: OptButton[];
+}
+
+declare interface ButtonGroupColors {
+    backgroundColor?: string;
+    btnBackgroundColor?: string;
+    btnHoverColor?: string;
+    btnActiveColor?: string;
+    iconColor?: string;
+    iconActiveColor?: string;
+    textColor?: string;
+    textActiveColor?: string;
 }
 
 /**
- * 按钮组接口
+ * 通用按钮组管理器
+ * 负责创建和管理除底部工具栏以外的其他按钮组。
  */
-export declare interface ButtonGroup {
-    /** 组 ID */
-    id: string;
-    /** 组内按钮列表 */
-    buttons: OptButton[];
+declare class ButtonGroupManager {
+    private activeGroups;
+    private container;
+    constructor(container: HTMLElement);
+    /**
+     * 创建一个新的按钮组
+     */
+    create(options: Omit<ButtonGroupOptions, 'container'>): BimButtonGroup;
+    updateTheme(theme: ThemeConfig): void;
+    refresh(): void;
+    destroy(): void;
+}
+
+export declare interface ButtonGroupOptions extends ButtonGroupColors {
+    container: HTMLElement | string;
+    /** 屏幕位置 (如 top-left) */
+    position?: GroupPosition;
+    /** 按钮组排列方向 (默认 row) */
+    direction?: GroupDirection;
+    /** 按钮内部图标文字排列 (默认 vertical) */
+    align?: ButtonAlign;
+    /** 菜单展开方向 */
+    expand?: ExpandDirection;
+    showLabel?: boolean;
+    visibility?: Record<string, boolean>;
+    className?: string;
 }
 
 declare type ButtonType = 'button' | 'menu';
 
-/**
- * 点击事件载荷
- */
 export declare interface ClickPayload {
-    /** 被点击的按钮对象 */
     button: OptButton;
-    /** 触发的动作类型 */
     action: 'activate' | 'deactivate' | 'trigger';
-    /** 当前激活状态 */
     isActive?: boolean;
 }
 
@@ -152,6 +244,8 @@ declare interface DialogColors {
 declare class DialogManager {
     /** 弹窗挂载的父容器 */
     private container;
+    /** 活跃的弹窗实例列表 */
+    private activeDialogs;
     /**
      * 构造函数
      * @param container 弹窗挂载的目标容器
@@ -168,6 +262,11 @@ declare class DialogManager {
      * 演示如何调用特定的业务弹窗组件
      */
     showInfoDialog(): void;
+    /**
+     * 响应全局主题变更
+     * @param theme 全局主题配置
+     */
+    updateTheme(theme: ThemeConfig): void;
 }
 
 /**
@@ -196,6 +295,8 @@ declare interface DialogOptions extends DialogColors {
     minHeight?: number;
     /** 关闭时的回调函数 */
     onClose?: () => void;
+    /** 打开时的回调函数 */
+    onOpen?: () => void;
     /** 弹窗唯一标识 ID (可选) */
     id?: string;
 }
@@ -210,239 +311,186 @@ declare type DialogPosition = 'center' | 'top-left' | 'top-center' | 'top-right'
     y: number;
 };
 
+/** 二级菜单展开方向 */
+declare type ExpandDirection = 'up' | 'down' | 'left' | 'right';
+
+/** 按钮组排列方向 (Flex-direction) */
+declare type GroupDirection = 'row' | 'column';
+
+/** 弹窗/按钮组位置 */
+declare type GroupPosition = 'center' | 'top-left' | 'top-center' | 'top-right' | 'left-center' | 'right-center' | 'bottom-left' | 'bottom-center' | 'bottom-right' | {
+    x: number;
+    y: number;
+} | 'static';
+
 /**
- * 底部操作按钮组组件
- * 负责渲染和管理底部工具栏的按钮、下拉菜单及相关交互。
+ * BIM 引擎组件通用接口
+ * 所有受引擎管理的 UI 组件都必须实现此接口
  */
-export declare class OptBtnGroups {
-    /** 挂载容器 */
-    private container;
-    /** 组件配置选项 */
-    private options;
-    /** 按钮组列表，按顺序存储 */
-    private groups;
-    /** 当前处于激活状态的按钮 ID 集合 */
-    private activeBtnIds;
-    /** 按钮 DOM 元素的引用映射，方便快速查找 */
-    private btnRefs;
-    /** 当��显示的下拉菜单元素 */
-    private dropdownElement;
-    /** 鼠标悬停计时器，用于处理菜单显示的防抖 */
-    private hoverTimeout;
-    /** 默认图标 SVG */
-    private readonly DEFAULT_ICON;
+declare interface IBimComponent {
     /**
-     * 构造函数
-     * @param options 配置选项
+     * 初始化组件
+     * 用于创建 DOM、绑定事件、加载资源等
+     * 支持同步或异步操作
      */
-    constructor(options: OptBtnGroupsOptions);
+    init(): void | Promise<void>;
     /**
-     * 初始化容器
+     * 设置主题
+     * 组件应在此方法中将 ThemeConfig 映射为自身的 CSS 变量或样式
      */
-    private initContainer;
+    setTheme(theme: ThemeConfig): void;
     /**
-     * 应用样式配置到 CSS 变量
+     * 设置语言
      */
-    private applyStyles;
+    setLocales(): void;
     /**
-     * 更新颜色配置
-     * @param colors 颜色配置对象
-     */
-    setColors(colors: ToolbarColors): void;
-    /**
-     * 添加按钮组
-     * @param groupId 组ID
-     * @param beforeGroupId 在哪个组之前插入（可选���，不传则插入到最后
-     */
-    addGroup(groupId: string, beforeGroupId?: string): void;
-    /**
-     * 添加按钮到指定组
-     * @param config 按钮配置（必须包含 groupId，可选包含 parentId）
-     */
-    addButton(config: ButtonConfig): void;
-    /**
-     * 递归查找按钮
-     */
-    private findButton;
-    /**
-     * 初始化组件，加载默认按钮配置
-     */
-    init(): Promise<void>;
-    /**
-     * 渲染整个工具栏
-     */
-    render(): void;
-    /**
-     * 渲染单个按钮组
-     */
-    private renderGroup;
-    /**
-     * 渲染单个按钮
-     */
-    private renderButton;
-    /**
-     * 处理按钮点击事件
-     */
-    private handleClick;
-    /**
-     * 处理子菜单项点击事件
-     */
-    private handleSubClick;
-    /**
-     * 处理鼠标移入事件（显示菜单）
-     */
-    private handleMouseEnter;
-    /**
-     * 处理鼠标移出事件（隐藏菜单）
-     */
-    private handleMouseLeave;
-    /**
-     * 显示下拉菜单
-     */
-    private showDropdown;
-    /**
-     * 渲染下拉菜单项
-     */
-    private renderDropdownItem;
-    /**
-     * 关闭所有下拉菜单
-     */
-    private closeDropdown;
-    /**
-     * 更新按钮的激活状态样式
-     */
-    private updateButtonState;
-    /**
-     * 获取图标 SVG 字符串
-     */
-    private getIcon;
-    /**
-     * 更新按钮可见性
-     * @param buttonId 按钮ID
-     * @param visible 是否可见
-     */
-    updateButtonVisibility(buttonId: string, visible: boolean): void;
-    /**
-     * 设置是否显示标签
-     * @param show 是否显示
-     */
-    setShowLabel(show: boolean): void;
-    /**
-     * 设置背景颜色 (兼容旧接口)
-     * @param color CSS 颜色值
-     */
-    setBackgroundColor(color: string): void;
-    /**
-     * 检查按钮是否可见
-     */
-    private isVisible;
-    /**
-     * 销毁组件，清理资源
+     * 销毁组件
+     * 清理 DOM 事件监听、定时器和引用
      */
     destroy(): void;
 }
 
+declare type LocaleChangeListener = (locale: LocaleType) => void;
+
 /**
- * OptBtnGroups 配置选项
+ * 语言管理器类
  */
-export declare interface OptBtnGroupsOptions extends ToolbarColors {
-    /** 容器元素或 ID */
-    container: HTMLElement | string;
-    /** 是否显示标签 */
-    showLabel?: boolean;
-    /** 按钮可见性配置 Map */
-    visibility?: Record<string, boolean>;
+declare class LocaleManager {
+    private currentLocale;
+    private messages;
+    private listeners;
+    constructor();
+    /**
+     * 获取当前语言
+     */
+    getLocale(): LocaleType;
+    /**
+     * 切换语言
+     */
+    setLocale(locale: LocaleType): void;
+    /**
+     * 翻译核心方法
+     */
+    t(key: string): string;
+    /**
+     * 订阅变更
+     */
+    subscribe(listener: LocaleChangeListener): () => void;
+    private notifyListeners;
 }
 
 /**
- * 操作按钮接口（内部使用，继承配置）
+ * 语言代码类型
  */
+declare type LocaleType = 'zh-CN' | 'en-US';
+
 export declare interface OptButton extends ButtonConfig {
-    /** 内部使用的子按钮列表 */
     children?: OptButton[];
 }
 
+declare type ThemeChangeListener = (theme: ThemeConfig) => void;
+
 /**
- * 工具栏颜色配置接口
+ * 全局主题配置接口
+ * 定义系统通用的语义化颜色
  */
-declare interface ToolbarColors {
-    /** 工具栏背景颜色 */
-    backgroundColor?: string;
-    /** 按钮默认背景颜色 */
-    btnBackgroundColor?: string;
-    /** 按钮 Hover 背景颜色 */
-    btnHoverColor?: string;
-    /** 按钮激活状态背景颜色 */
-    btnActiveColor?: string;
+declare interface ThemeConfig {
+    /** 主题名称 */
+    name: string;
+    /** 品牌色/主色 */
+    primary: string;
+    /** 主色悬停/激活态 */
+    primaryHover: string;
+    /** 基础背景色 (应用整体背景) */
+    background: string;
+    /** 面板背景色 (工具栏、弹窗背景) */
+    panelBackground: string;
+    /** 主要文字颜色 */
+    textPrimary: string;
+    /** 次要文字颜色 */
+    textSecondary: string;
+    /** 边框/分割线颜色 */
+    border: string;
     /** 图标默认颜色 */
-    iconColor?: string;
-    /** 图标激活/Hover 颜色 */
-    iconActiveColor?: string;
-    /** 文字默认颜色 */
-    textColor?: string;
-    /** 文字激活/Hover 颜色 */
-    textActiveColor?: string;
+    icon: string;
+    /** 图标激活颜色 */
+    iconActive: string;
+    /** 交互组件背景 (如按钮默认背景) */
+    componentBackground: string;
+    /** 交互组件悬停背景 */
+    componentHover: string;
+    /** 交互组件激活背景 */
+    componentActive: string;
 }
 
 /**
- * 工具栏管理器
- * 负责管理底部操作栏的按钮组、按钮及其可见性等状态。
+ * 主题管理器 (单例)
+ */
+declare class ThemeManager {
+    private currentTheme;
+    private listeners;
+    constructor();
+    /**
+     * 获取当前主题配置
+     */
+    getTheme(): ThemeConfig;
+    /**
+     * 切换预设主题
+     * @param themeName 'dark' | 'light'
+     */
+    setTheme(themeName: 'dark' | 'light'): void;
+    /**
+     * 应用自定义主题配置
+     * @param theme 配置对象
+     */
+    setCustomTheme(theme: ThemeConfig): void;
+    /**
+     * 内部应用主题逻辑
+     */
+    private applyTheme;
+    /**
+     * 订阅主题变更
+     */
+    subscribe(listener: ThemeChangeListener): () => void;
+    private notifyListeners;
+}
+
+/**
+ * 主题类型定义
+ */
+declare type ThemeType = 'dark' | 'light' | 'custom';
+
+/**
+ * 底部工具栏 (Toolbar)
+ * BimButtonGroup 的子类，专门用于加载工具栏默认按钮。
+ */
+export declare class Toolbar extends BimButtonGroup {
+    /**
+     * 重写初始化，加载默认按钮
+     */
+    init(): Promise<void>;
+}
+
+/**
+ * 底部工具栏管理器 (ToolbarManager)
+ * 仅负责管理底部工具栏实例。
  */
 declare class ToolbarManager {
-    /** 内部工具栏组件实例 */
-    private optBtnGroups;
-    /** 工具栏挂载的容器 */
+    private toolbar;
+    private toolbarContainer;
     private container;
-    /**
-     * 构造函数
-     * @param container 工具栏挂载的容器元素
-     */
     constructor(container: HTMLElement);
-    /**
-     * 初始化工具栏
-     */
     private init;
-    /**
-     * 添加一个工具栏按钮组
-     * @param groupId 新组的 ID
-     * @param beforeGroupId (可选) 插入到哪个组之前，不传则追加到最后
-     */
-    addGroup(groupId: string, beforeGroupId?: string): void;
-    /**
-     * 添加一个工具栏按钮
-     * @param config 按钮配置对象
-     */
-    addButton(config: ButtonConfig): void;
-    /**
-     * 设置按钮的可见性
-     * @param buttonId 按钮 ID
-     * @param visible 是否可见
-     */
-    setButtonVisibility(buttonId: string, visible: boolean): void;
-    /**
-     * 设置是否显示按钮下方的文字标签
-     * @param show 是否显示
-     */
-    setShowLabel(show: boolean): void;
-    /**
-     * 设置整个工具栏的可见性
-     * @param visible 是否可见
-     */
-    setVisible(visible: boolean): void;
-    /**
-     * 设置工具栏背景颜色
-     * @param color CSS 颜色值
-     */
-    setBackgroundColor(color: string): void;
-    /**
-     * 设置工具栏详细颜色配置
-     * @param colors 颜色配置对象
-     */
-    setColors(colors: ToolbarColors): void;
-    /**
-     * 销毁工具栏管理器
-     */
+    updateTheme(theme: ThemeConfig): void;
+    refresh(): void;
     destroy(): void;
+    addGroup(groupId: string, beforeGroupId?: string): void;
+    addButton(config: ButtonConfig): void;
+    setButtonVisibility(id: string, v: boolean): void;
+    setShowLabel(show: boolean): void;
+    setVisible(visible: boolean): void;
+    setBackgroundColor(color: string): void;
+    setColors(colors: ButtonGroupColors): void;
 }
 
 export { }

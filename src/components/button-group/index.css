@@ -1,0 +1,291 @@
+/* 根容器 */
+.bim-btn-group-root {
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    position: absolute;
+    pointer-events: auto;
+}
+
+.bim-btn-group-root.static {
+    position: relative;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    right: auto;
+    transform: none;
+}
+
+.bim-btn-group-root.dir-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.bim-btn-group-root.dir-column {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* 分组区域 */
+.bim-btn-group-section {
+    display: flex;
+    gap: 4px;
+    background-color: var(--bim-btn-group-section-bg, rgba(17, 17, 17, 0.88));
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.bim-btn-group-root.dir-row .bim-btn-group-section {
+    flex-direction: row;
+    align-items: center;
+}
+
+.bim-btn-group-root.dir-column .bim-btn-group-section {
+    flex-direction: column;
+}
+
+/* 按钮外层 */
+.opt-btn-wrapper {
+    position: relative;
+}
+
+/* 按钮本体 */
+.opt-btn {
+    display: flex;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    color: var(--bim-btn-text-color, #ccc);
+    background-color: var(--bim-btn-bg, transparent);
+    padding: 6px;
+    align-items: center;
+    position: relative;
+    /* 为绝对定位提供锚点 */
+    justify-content: center;
+}
+
+.opt-btn:hover {
+    background-color: var(--bim-btn-hover-bg, #444);
+}
+
+.opt-btn.active {
+    background-color: var(--bim-btn-active-bg, rgba(255, 255, 255, 0.15));
+    color: var(--bim-btn-text-active-color, #fff);
+}
+
+.opt-btn.active .opt-btn-icon {
+    color: var(--bim-icon-active-color, #fff);
+}
+
+.opt-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- 图标 --- */
+.opt-btn-icon {
+    width: var(--bim-icon-size, 24px);
+    height: var(--bim-icon-size, 24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bim-icon-color, #ccc);
+    flex-shrink: 0;
+}
+
+.opt-btn-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+/* --- 箭头 --- */
+.opt-btn-arrow {
+    font-size: 10px;
+    opacity: 0.6;
+    transition: transform 0.2s;
+    display: inline-block;
+    /* 默认情况 (有Label) */
+    margin-left: 4px;
+}
+
+.opt-btn-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+/* --- 文字容器 --- */
+.opt-btn-text-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+/* --- Label 显示控制 --- */
+.opt-btn-label {
+    display: inline;
+}
+
+.opt-btn.no-label .opt-btn-label {
+    display: none;
+}
+
+/* --- 场景 A: 有 Label (常规布局) --- */
+
+.opt-btn.align-vertical:not(.no-label) {
+    flex-direction: column;
+    text-align: center;
+}
+
+.opt-btn.align-vertical:not(.no-label) .opt-btn-text-wrapper {
+    margin-top: 4px;
+}
+
+.opt-btn.align-vertical:not(.no-label) .opt-btn-label {
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.opt-btn.align-horizontal:not(.no-label) {
+    flex-direction: row;
+}
+
+.opt-btn.align-horizontal:not(.no-label) .opt-btn-text-wrapper {
+    margin-left: 8px;
+}
+
+.opt-btn.align-horizontal:not(.no-label) .opt-btn-label {
+    font-size: 14px;
+}
+
+/* --- 场景 B: 无 Label (强制绝对定位) --- */
+
+/* 当没有 label 时，text-wrapper 其实只包裹了 arrow */
+/* 我们需要让 wrapper 失去布局影响，直接定位内部的 arrow */
+
+.opt-btn.no-label .opt-btn-text-wrapper {
+    /* 让 wrapper 变为 0 尺寸，不影响 flex 布局 */
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    /* 关键：允许子元素溢出 */
+    position: absolute;
+    /* 脱离文档流，相对于 .opt-btn */
+    top: 0;
+    right: 0;
+}
+
+.opt-btn.no-label .opt-btn-arrow {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    margin: 0;
+    /* 清除之前的 margin */
+    font-size: 8px;
+    /* 
+       如果父级 wrapper 已经是 top:0, right:0 
+       那么 arrow 相对 wrapper 定位即可
+    */
+}
+
+/* --- 下拉菜单 & 动画 --- */
+.opt-btn-dropdown {
+    position: absolute;
+    background-color: var(--bim-toolbar-bg, rgba(17, 17, 17, 0.95));
+    border-radius: 4px;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* 动画起始状态 */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    /* 默认向上偏移一点 */
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), visibility 0.2s;
+}
+
+/* 动画激活状态 (需要 JS 添加 .show 类，或者直接在 display:flex 时生效？) */
+/* 这里的实现有点 tricky，因为 JS 里直接 appendChild */
+/* 我们可以利用 CSS 动画关键帧，或者简单的 transition */
+/* 由于 DOM 是动态插入的，插入瞬间是 opacity: 0 -> requestAnimationFrame -> opacity: 1 */
+/* 简单的办法：添加动画 keyframes */
+
+@keyframes dropdown-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.opt-btn-dropdown {
+    /* 覆盖上面的 transition，直接用 animation */
+    animation: dropdown-fade-in 0.2s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+    /* 初始可见性由 JS 控制（append 即显示） */
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+.opt-btn-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--bim-btn-text-color, #ccc);
+    transition: background 0.2s;
+    box-sizing: border-box;
+}
+
+.opt-btn-dropdown-item:hover {
+    background-color: var(--bim-btn-hover-bg, #444);
+    color: #fff;
+}
+
+/* 下拉菜单项 - 横向布局（图标在左，默认） */
+.opt-btn-dropdown-item.align-horizontal {
+    flex-direction: row;
+}
+
+.opt-btn-dropdown-item.align-horizontal .opt-btn-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+}
+
+/* 下拉菜单项 - 纵向布局（图标在上） */
+.opt-btn-dropdown-item.align-vertical {
+    flex-direction: column;
+    text-align: center;
+}
+
+.opt-btn-dropdown-item.align-vertical .opt-btn-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+}
+
+.opt-btn-dropdown-item.align-vertical .opt-btn-dropdown-label {
+    font-size: 12px;
+}
+
+/* --- 特定样式覆盖：底部工具栏 --- */
+.bim-btn-group-root.is-bottom-toolbar .opt-btn-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.bim-btn-group-root.is-bottom-toolbar .opt-btn {
+    padding: 8px;
+}
